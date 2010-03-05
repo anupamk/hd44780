@@ -135,6 +135,12 @@ def exec_command(reg_select, ctrl):
     pp.setData(ctrl)
     toggle_enable()
 
+# write some data
+def write_data(data):
+    pp.setInitOut(1)
+    pp.setData(data)
+    toggle_enable()
+
 # this function is called to execute a named-command  (from the
 # LCD_INSTRUCTION_TABLE)
 def exec_named_cmdval(cmd_name, cmd_val):
@@ -156,12 +162,6 @@ def exec_named_cmdseq(cmd_name_seq):
 def position_cursor(lcd_row, lcd_col):
     rowcol_ddram_addr = lcd_get_ddram_address(lcd_row, lcd_col)
     exec_named_cmdval('WRITE_DDRAM_ADDRESS', rowcol_ddram_addr)
-
-# write some data
-def write_data(data):
-    pp.setInitOut(1)
-    pp.setData(data)
-    toggle_enable()
 
 # position the cursor to a specific location on the lcd    
 # write a ascii-character data
@@ -217,5 +217,3 @@ def initialize_lcd():
                        'DISPLAY_PARAM_8BIT_2LINE_5x8DOTS',
                        'RETURN_HOME'])
 
-
-    
