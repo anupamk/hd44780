@@ -10,7 +10,7 @@ pp = parallel.Parallel()
 # lcd module. this is not a comprehensive list anyways. it just
 # contains the commands that we are currently interested in.
 # 
-# a function 'lcd_get_instruction_data' is defined which takes a
+# a function 'get_instruction_data' is defined which takes a
 # command-name defined below, and returns the appropriate RS, R/W,
 # DB7-DB0 values, which are then used.
 LCD_INSTRUCTION_TABLE = {
@@ -81,7 +81,7 @@ def bits2char(bit_array):
 # this function is called to return rs, r/w, db0-db7 values for a
 # given instruction. for write_XXX instructions, addr_val should be
 # appropriately populated
-def lcd_get_instruction_data(instruction_name, addr_val = 0):
+def get_instruction_data(instruction_name, addr_val = 0):
     reg_select = 0x00
     read_write = 0x00
     instr_val  = 0x00
@@ -130,91 +130,92 @@ def toggle_enable():
     time.sleep(0.0001)
 
 # send out some control command
-def lcd_exec_command(reg_select, ctrl):
+def exec_command(reg_select, ctrl):
     pp.setInitOut(reg_select)
     pp.setData(ctrl)
     toggle_enable()
 
 # this function is called to execute a named-command  (from the
 # LCD_INSTRUCTION_TABLE)
-def lcd_exec_named_cmdval(cmd_name, cmd_val):
-    rs, _, cmd_value = lcd_get_instruction_data(cmd_name, cmd_val)
+def exec_named_cmdval(cmd_name, cmd_val):
+    rs, _, cmd_value = get_instruction_data(cmd_name, cmd_val)
     
     print "[cmd-name:'%32s', cmd-value: '%3d', reg-sel: '%2d']" % (cmd_name, cmd_value, rs)
-    lcd_exec_command(rs, cmd_value)
-    
-def lcd_exec_named_cmd(cmd_name):
-    lcd_exec_named_cmdval(cmd_name, 0)
+    exec_command(rs, cmd_value)
+
+# execute a named-command
+def exec_named_cmd(cmd_name):
+    exec_named_cmdval(cmd_name, 0)
 
 # execute a sequence of commands
-def lcd_exec_named_cmdseq(cmd_name_seq):
+def exec_named_cmdseq(cmd_name_seq):
     for cmd_name in cmd_name_seq:
-        lcd_exec_named_cmd(cmd_name)
+        exec_named_cmd(cmd_name)
 
 # position the cursor to a specific location on the lcd
-def lcd_position_cursor(lcd_row, lcd_col):
+def position_cursor(lcd_row, lcd_col):
     rowcol_ddram_addr = lcd_get_ddram_address(lcd_row, lcd_col)
-    lcd_exec_named_cmdval('WRITE_DDRAM_ADDRESS', rowcol_ddram_addr)
+    exec_named_cmdval('WRITE_DDRAM_ADDRESS', rowcol_ddram_addr)
 
 # write some data
-def lcd_write_data(data):
+def write_data(data):
     pp.setInitOut(1)
     pp.setData(data)
     toggle_enable()
 
 # position the cursor to a specific location on the lcd    
 # write a ascii-character data
-def lcd_write_char_data(char):
-    lcd_write_data(ord(char))
+def write_char_data(char):
+    write_data(ord(char))
 
 # write a string onto the lcd
-def lcd_write_string(msg_string):
+def write_string(msg_string):
     for ch in msg_string:
-        lcd_write_char_data(ch)
+        write_char_data(ch)
 
     # don't show the cursor anymore
-    lcd_exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
+    exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
 
 # write string at a given location
-def lcd_write_string_at(row, col, msg_string):
-    lcd_position_cursor(row, col)
-    lcd_write_string(msg_string)
+def write_string_at(row, col, msg_string):
+    position_cursor(row, col)
+    write_string(msg_string)
 
     # don't show the cursor any-more
-    lcd_exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
+    exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
 
 # this function is called to create a custom-character at a given
 # location in the CGRAM
 def create_custom_charset(cc_loc, cc_byte_string):
     cc_start_addr = lcd_get_cc_cgram_start_addr(cc_loc)
-    lcd_exec_named_cmdval('WRITE_CGRAM_ADDRESS', cc_start_addr)
+    exec_named_cmdval('WRITE_CGRAM_ADDRESS', cc_start_addr)
 
     for i in cc_byte_string:
-        lcd_exec_named_cmdval('WRITE_DATA_TO_RAM', i)
+        exec_named_cmdval('WRITE_DATA_TO_RAM', i)
 
 # this function is called to display a custom-character at current
 # DDRAM location
 def display_custom_char(cc_loc):
-    lcd_write_data(cc_loc - 1)
+    write_data(cc_loc - 1)
 
 def display_custom_char_at(lcd_row, lcd_col, cc_loc):
-    lcd_position_cursor(lcd_row, lcd_col)
+    position_cursor(lcd_row, lcd_col)
     display_custom_char(cc_loc)
 
 # reset the lcd to a sane state. everything is cleaned out
 def reset_lcd():
-    lcd_exec_named_cmdseq(['DISPLAY_CLEAR',
-                           'DISPLAY_OFF',
-                           'DISPLAY_ON_CURSOR_ON_BLINK_ON',
-                           'DISPLAY_PARAM_8BIT_2LINE_5x8DOTS',
-                           'RETURN_HOME'])
+    exec_named_cmdseq(['DISPLAY_CLEAR',
+                       'DISPLAY_OFF',
+                       'DISPLAY_ON_CURSOR_ON_BLINK_ON',
+                       'DISPLAY_PARAM_8BIT_2LINE_5x8DOTS',
+                       'RETURN_HOME'])
 
 # initialize the lcd to 8bit mode, with a blinking-cursor at (0, 0)
 def initialize_lcd():
-    lcd_exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_ON',
-                           'DISPLAY_CLEAR',
-                           'DISPLAY_PARAM_8BIT_2LINE_5x8DOTS',
-                           'RETURN_HOME'])
+    exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_ON',
+                       'DISPLAY_CLEAR',
+                       'DISPLAY_PARAM_8BIT_2LINE_5x8DOTS',
+                       'RETURN_HOME'])
 
 
     

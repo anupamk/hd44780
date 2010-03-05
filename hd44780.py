@@ -26,7 +26,7 @@ def create_some_custom_chars():
 def display_all_cc():
     num_cc = len(CUSTOM_CHAR_MAP)
 
-    lcd_driver.lcd_position_cursor(1,1)
+    lcd_driver.position_cursor(1,1)
     for i in range(num_cc):
         lcd_driver.display_custom_char(i+1)
 
