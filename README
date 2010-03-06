@@ -1,0 +1,59 @@
+This project implements a simple interface to HD44780 based LCD
+displays. The only dependancy is on 'pyparallel' which provides a
+python-wrapper over the standard parallel-port interface.
+
+Important Notes
+---------------
+The code is split into 2 parts (as of now), they are
+hd44780_driver.py and hd44780.py.
+
+Conceptually, hd44780_driver.py exposes a low-level interface to
+underlying lcd primitives. Among other things, it provides mechanisms 
+for displaying  ascii/non-ascii[*]/custom-characters and strings
+at various user-controlled locations on the display.
+
+As of now, hd44780.py uses the interface exported by the driver for
+defining and displaying custom characters only. This will be further
+enhanced as more interesting data is gathered.
+
+[*]: limited to what is available on the CGROM on the chip.
+
+Driver Implementation Details
+-----------------------------
+Interacting with HD44780 module is primarily[*] done via writing
+commands/data to the module. 
+
+In this implementation, a 'LCD_INSTRUCTION_TABLE' provides a
+COMMAND-NAME to COMMAND-VALUE mapping. Each row in the table provides
+the corresponding values for different parallel-port
+pins. 'get_instruction_data' then takes an instruction-name, and
+returns the actual values that need to be sent down the
+parallel-port.
+
+This approach has a great advantage of self documenting most of the
+lcd-interactions in the program. For example, restting the lcd is
+written as :
+        ,----
+        | def reset_lcd():
+        |     exec_named_cmdseq(['DISPLAY_CLEAR',
+        |                        'DISPLAY_OFF',
+        |                        'DISPLAY_ON_CURSOR_ON_BLINK_ON',
+        |                        'DISPLAY_PARAM_8BIT_2LINE_5x8DOTS',
+        |                        'RETURN_HOME'])
+        `----
+which basically implies that resetting the display is done by
+executing the following commands in sequence:
+      - DISPLAY_CLEAR
+      - DISPLAY_OFF
+      - DISPLAY_ON_CURSOR_ON_BLINK_ON
+      - DISPLAY_PARAM_8BIT_2LINE_5x8DOTS
+      - RETURN_HOME
+
+Shortcomings
+------------
+1. As of now, no support for reading values at a given address is not
+   provided. This is mostly intentional, as data is written more often
+   on a display, than read. 
+
+2. There is no interface to intelligently wrap large text to
+   subsequent lines. 
