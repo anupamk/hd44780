@@ -6,6 +6,38 @@ import time
 # global-definitions
 pp = parallel.Parallel()
 
+# 
+# || port         :  HD-44780
+# D0 - D7         :  DB0 - DB7
+# C0 (inv)        :  E
+# C2 (non-inv)    :  RS
+#
+
+# 
+# first we define top level functions that make the whole thing
+# work. next we define abstractions on these building blocks
+#
+
+# this function is called to strobe the enable pin. data is only
+# considered valid when it is high
+def toggle_enable():
+    pp.setDataStrobe(1)         # E == low
+    time.sleep(0.001)
+    pp.setDataStrobe(0)         # E == high
+    time.sleep(0.001)
+
+# send out some control command
+def exec_command(reg_select, ctrl):
+    pp.setInitOut(reg_select)
+    pp.setData(ctrl)
+    toggle_enable()
+
+# write some data
+def write_data_byte(data):
+    pp.setInitOut(1)
+    pp.setData(data)
+    toggle_enable()
+
 # following dictionary contains the set of available commands for the
 # lcd module. this is not a comprehensive list anyways. it just
 # contains the commands that we are currently interested in.
@@ -53,7 +85,6 @@ LCD_DDRAM_ADDRESS_TABLE = [
 #    4. Displaying custom characters is pretty straightforward. We
 #       just write to the DDRAM the contents of a custom-char-location
 #       as defined in (3) above.
-# 
 LCD_CUSTOMCHAR_ADDRESS_MAP = [
     [1, 0x40],
     [2, 0x48],
@@ -64,7 +95,6 @@ LCD_CUSTOMCHAR_ADDRESS_MAP = [
     [7, 0x70],
     [8, 0x78]
 ]
-
 
 # this function is called to convert an 8bit array to an equivalen
 # char. index-0 is MSB, index-7 is LSB
@@ -109,38 +139,6 @@ def lcd_get_ddram_address(row, col):
 def lcd_get_cc_cgram_start_addr(cc_loc):
     return LCD_CUSTOMCHAR_ADDRESS_MAP[cc_loc - 1][1]
 
-# 
-# || port         :  HD-44780
-# D0 - D7         :  DB0 - DB7
-# C0 (inv)        :  E
-# C2 (non-inv)    :  RS
-#
-
-# 
-# first we define top level functions that make the whole thing
-# work. next we define abstractions on these building blocks
-#
-
-# this function is called to strobe the enable pin. data is only
-# considered valid when it is high
-def toggle_enable():
-    pp.setDataStrobe(1)         # E == low
-    time.sleep(0.0001)
-    pp.setDataStrobe(0)         # E == high
-    time.sleep(0.0001)
-
-# send out some control command
-def exec_command(reg_select, ctrl):
-    pp.setInitOut(reg_select)
-    pp.setData(ctrl)
-    toggle_enable()
-
-# write some data
-def write_data(data):
-    pp.setInitOut(1)
-    pp.setData(data)
-    toggle_enable()
-
 # this function is called to execute a named-command  (from the
 # LCD_INSTRUCTION_TABLE)
 def exec_named_cmdval(cmd_name, cmd_val):
@@ -163,10 +161,9 @@ def position_cursor(lcd_row, lcd_col):
     rowcol_ddram_addr = lcd_get_ddram_address(lcd_row, lcd_col)
     exec_named_cmdval('WRITE_DDRAM_ADDRESS', rowcol_ddram_addr)
 
-# position the cursor to a specific location on the lcd    
 # write a ascii-character data
 def write_char_data(char):
-    write_data(ord(char))
+    write_data_byte(ord(char))
 
 # write a string onto the lcd
 def write_string(msg_string):
@@ -196,8 +193,10 @@ def create_custom_charset(cc_loc, cc_byte_string):
 # this function is called to display a custom-character at current
 # DDRAM location
 def display_custom_char(cc_loc):
-    write_data(cc_loc - 1)
+    write_data_byte(cc_loc - 1)
 
+# this function is called to display a custom-character at a specific
+# DDRAM location
 def display_custom_char_at(lcd_row, lcd_col, cc_loc):
     position_cursor(lcd_row, lcd_col)
     display_custom_char(cc_loc)
