@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import parallel
-import time
 import hd44780_driver as lcd_driver
 
 

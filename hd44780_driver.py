@@ -1,42 +1,8 @@
-#!/usr/bin/env python
+import pp_driver
 
-import parallel
-import time
+# this module provides an interface to the functionality offered by
+# the HD44780 Text LCD Display.
 
-# global-definitions
-pp = parallel.Parallel()
-
-# 
-# || port         :  HD-44780
-# D0 - D7         :  DB0 - DB7
-# C0 (inv)        :  E
-# C2 (non-inv)    :  RS
-#
-
-# 
-# first we define top level functions that make the whole thing
-# work. next we define abstractions on these building blocks
-#
-
-# this function is called to strobe the enable pin. data is only
-# considered valid when it is high
-def toggle_enable():
-    pp.setDataStrobe(1)         # E == low
-    time.sleep(0.001)
-    pp.setDataStrobe(0)         # E == high
-    time.sleep(0.001)
-
-# send out some control command
-def exec_command(reg_select, ctrl):
-    pp.setInitOut(reg_select)
-    pp.setData(ctrl)
-    toggle_enable()
-
-# write some data
-def write_data_byte(data):
-    pp.setInitOut(1)
-    pp.setData(data)
-    toggle_enable()
 
 # following dictionary contains the set of available commands for the
 # lcd module. this is not a comprehensive list anyways. it just
@@ -98,7 +64,7 @@ LCD_CUSTOMCHAR_ADDRESS_MAP = [
 
 # this function is called to convert an 8bit array to an equivalen
 # char. index-0 is MSB, index-7 is LSB
-def bits2char(bit_array):
+def _bits2char(bit_array):
     return ((bit_array[0] << 7) |
             (bit_array[1] << 6) |
             (bit_array[2] << 5) |
@@ -125,7 +91,7 @@ def get_instruction_data(instruction_name, addr_val = 0):
     # instruction_name is ok
     reg_select = instr_tab[0]
     read_write = instr_tab[1]
-    instr_val  = bits2char(instr_tab[2:]) | addr_val
+    instr_val  = _bits2char(instr_tab[2:]) | addr_val
 
     return (reg_select, read_write, instr_val)
 
@@ -145,7 +111,7 @@ def exec_named_cmdval(cmd_name, cmd_val):
     rs, _, cmd_value = get_instruction_data(cmd_name, cmd_val)
     
     print "[cmd-name:'%32s', cmd-value: '%3d', reg-sel: '%2d']" % (cmd_name, cmd_value, rs)
-    exec_command(rs, cmd_value)
+    pp_driver.exec_command(rs, cmd_value)
 
 # execute a named-command
 def exec_named_cmd(cmd_name):
@@ -163,7 +129,7 @@ def position_cursor(lcd_row, lcd_col):
 
 # write a ascii-character data
 def write_char_data(char):
-    write_data_byte(ord(char))
+    pp_driver.write_data_byte(ord(char))
 
 # write a string onto the lcd
 def write_string(msg_string):
@@ -193,7 +159,7 @@ def create_custom_charset(cc_loc, cc_byte_string):
 # this function is called to display a custom-character at current
 # DDRAM location
 def display_custom_char(cc_loc):
-    write_data_byte(cc_loc - 1)
+    pp_driver.write_data_byte(cc_loc - 1)
 
 # this function is called to display a custom-character at a specific
 # DDRAM location
