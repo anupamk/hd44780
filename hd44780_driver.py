@@ -163,10 +163,10 @@ def display_custom_char(cc_loc):
 
 # this function is called to display a custom-character at a specific
 # DDRAM location
-def display_custom_char_at(lcd_row, lcd_col, cc_loc):
+def write_custom_character_at(lcd_row, lcd_col, byte_seq):
+    create_custom_charset(1, byte_seq)
     position_cursor(lcd_row, lcd_col)
-    display_custom_char(cc_loc)
-
+    display_custom_char(1)
 
 # this function is called to write a custom byte-sequence at the
 # current location on the lcd

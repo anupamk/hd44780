@@ -3,8 +3,7 @@
 import time
 
 # lcd specific
-import lcd_display_interface as lcd
-
+import lcd_interface as lcd
 
 # demo of custom-characters
 CUSTOM_CHAR_MAP = {
@@ -15,9 +14,15 @@ CUSTOM_CHAR_MAP = {
 
 # display something:
 def display_something():
+    cc_row, cc_col = 2, 19
+    
+    lcd.printf(1, 1, "%s ", "hello world")
+    lcd.printf(2, 2, "%s ", "hello world")
+    lcd.printf(3, 3, "%s ", "hello world")
+    lcd.printf(4, 4, "%s ", "hello world")
+
     for shape_name, shape_val in CUSTOM_CHAR_MAP.iteritems():
-        lcd.printf("%B %s", shape_val, ": "+shape_name)
-        time.sleep(3)
-        
+        lcd.printf(cc_row, cc_col, "%B", shape_val)
+        cc_row = cc_row + 1
 
 
