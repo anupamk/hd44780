@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-import lcd_display_interface as lcd_disp
+import time
+
+# lcd specific
+import lcd_display_interface as lcd
 
 
 # demo of custom-characters
@@ -12,9 +15,9 @@ CUSTOM_CHAR_MAP = {
 
 # display something:
 def display_something():
-    lcd_disp.do_printf("%s", "hello world")
-
     for shape_name, shape_val in CUSTOM_CHAR_MAP.iteritems():
-        lcd_disp.do_printf("%s %B", shape_name, shape_val)
+        lcd.printf("%B %s", shape_val, ": "+shape_name)
+        time.sleep(3)
+        
 
 
