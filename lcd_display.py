@@ -15,6 +15,7 @@ CUSTOM_CHAR_MAP = {
 # display something:
 def display_something():
     cc_row, cc_col = 2, 19
+    cc_cgram_addr  = 1
     
     lcd.printf(1, 1, "%s ", "hello world")
     lcd.printf(2, 2, "%s ", "hello world")
@@ -22,7 +23,10 @@ def display_something():
     lcd.printf(4, 4, "%s ", "hello world")
 
     for shape_name, shape_val in CUSTOM_CHAR_MAP.iteritems():
-        lcd.printf(cc_row, cc_col, "%B", shape_val)
-        cc_row = cc_row + 1
+        lcd.printf(cc_row, cc_col, "%B", [cc_cgram_addr, shape_val])
+
+        # next shape
+        cc_cgram_addr = cc_cgram_addr + 1
+        cc_row        = cc_row + 1
 
 

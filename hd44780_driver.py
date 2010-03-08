@@ -149,11 +149,11 @@ def write_string_at(row, col, msg_string):
 
 # this function is called to create a custom-character at a given
 # location in the CGRAM
-def create_custom_charset(cc_loc, cc_byte_string):
-    cc_start_addr = lcd_get_cc_cgram_start_addr(cc_loc)
+def create_custom_charset(cc_loc_value):
+    cc_start_addr = lcd_get_cc_cgram_start_addr(cc_loc_value[0])
     exec_named_cmdval('WRITE_CGRAM_ADDRESS', cc_start_addr)
 
-    for i in cc_byte_string:
+    for i in cc_loc_value[1]:
         exec_named_cmdval('WRITE_DATA_TO_RAM', i)
 
 # this function is called to display a custom-character at current
@@ -163,17 +163,15 @@ def display_custom_char(cc_loc):
 
 # this function is called to display a custom-character at a specific
 # DDRAM location
-def write_custom_character_at(lcd_row, lcd_col, byte_seq):
-    create_custom_charset(1, byte_seq)
+def write_custom_character_at(lcd_row, lcd_col, cc_loc_value):
+    create_custom_charset(cc_loc_value)
     position_cursor(lcd_row, lcd_col)
-    display_custom_char(1)
+    display_custom_char(cc_loc_value[0])
 
 # this function is called to write a custom byte-sequence at the
 # current location on the lcd
-def write_custom_character(byte_seq):
-    create_custom_charset(1, byte_seq)
-    position_cursor(1, 1)
-    display_custom_char(1)
+def write_custom_character(cc_loc_val):
+    write_custom_character_at(1, 1, cc_loc_val)
 
 # reset the lcd to a sane state. everything is cleaned out
 def reset_lcd():
