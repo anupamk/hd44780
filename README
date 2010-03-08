@@ -1,6 +1,6 @@
-This project implements a simple interface to HD44780 based LCD
-displays. The only dependancy is on 'pyparallel' which provides a
-python-wrapper over the standard parallel-port interface.
+This project implements a simple interface to text based LCD modules
+i.e HD44780 clones. The only dependancy is on 'pyparallel' which
+provides a python-wrapper over the standard parallel-port interface.
 
 Important Notes
 ---------------
@@ -48,6 +48,8 @@ executing the following commands in sequence:
       - DISPLAY_ON_CURSOR_ON_BLINK_ON
       - DISPLAY_PARAM_8BIT_2LINE_5x8DOTS
       - RETURN_HOME
+
+[*] See [1] in Shortcomings sections below
 
 Shortcomings
 ------------
