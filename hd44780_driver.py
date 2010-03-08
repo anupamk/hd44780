@@ -132,7 +132,7 @@ def write_char_data(char):
     pp_driver.write_data_byte(ord(char))
 
 # write a string onto the lcd
-def write_string(msg_string):
+def write_charseq(msg_string):
     for ch in msg_string:
         write_char_data(ch)
 
@@ -140,9 +140,9 @@ def write_string(msg_string):
     exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
 
 # write string at a given location
-def write_string_at(row, col, msg_string):
+def write_charseq_at(row, col, msg_string):
     position_cursor(row, col)
-    write_string(msg_string)
+    write_charseq(msg_string)
 
     # don't show the cursor any-more
     exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
@@ -166,6 +166,13 @@ def display_custom_char(cc_loc):
 def display_custom_char_at(lcd_row, lcd_col, cc_loc):
     position_cursor(lcd_row, lcd_col)
     display_custom_char(cc_loc)
+
+
+# this function is called to write a custom byte-sequence at the
+# current location on the lcd
+def write_custom_charset(byte_seq):
+    create_custom_charset(0, byte_seq)
+    display_custom_char(0)
 
 # reset the lcd to a sane state. everything is cleaned out
 def reset_lcd():
