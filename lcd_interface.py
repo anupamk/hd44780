@@ -6,37 +6,41 @@ from hd44780_driver import initialize_lcd as initialize
 from hd44780_driver import write_string_at
 from hd44780_driver import write_custom_character_at
 
-# where do we want to dump the output
-lcd_row = 1
-lcd_col = 1
+# lcd dimensions
+LCD_NUM_ROWS               = 4
+LCD_NUM_COLS               = 20
+LCD_MAX_DISPLAYABLE_STRING = LCD_NUM_COLS * LCD_NUM_ROWS
 
-# support primitives
-LCD_PRINTF_FUNCTION_TABLE = {
-    '%s' : write_string_at,
-    '%B' : write_custom_character_at
-}
+# printf like interface for displaying stuff on to the
+# lcd. custom-characters are not supported...
+def printf(row, col, wrap_ok = True, fmt_args = None, *fmt_argv):
+    # basic checks first
+    if ((fmt_args == None) or
+        (row < 1 or row > LCD_NUM_ROWS) or                      
+        (col < 1 or col > LCD_NUM_COLS)):
+        return
 
-# execute the functions defined above with the argument
-def apply_lcd_printf(arg_val):
-    LCD_PRINTF_FUNCTION_TABLE[arg_val[0]](lcd_row, lcd_col, arg_val[1])
-
-# a simple printf like interface for displaying stuff on the lcd
-# module. 
-def printf(row, col, fmt_args, *fmt_argv):
-    global lcd_row, lcd_col
+    # can we even fit the string in the available space ?
+    blank_cols = col + (row-1) * LCD_NUM_COLS
+    if blank_cols >= LCD_MAX_DISPLAYABLE_STRING:             
+        return                                       # nope
     
-    fmt_split_args = fmt_args.split()
-    fmt_arg_values = []
-
-    lcd_row, lcd_col = row, col
+    # all-that-we-can-show VS what-we-actually-can-show
+    temp_lcd_output = str(fmt_args) % fmt_argv
+    lcd_output      = temp_lcd_output[:(LCD_MAX_DISPLAYABLE_STRING - blank_cols + 1)]
     
-    for v in fmt_argv:
-        fmt_arg_values.append(v)
+    # start dumping strings...
+    write_string_at(row, col, lcd_output[:LCD_NUM_COLS - col + 1])
 
-    # now, we have both arguments and values, in separate
-    # lists. combine them into one neat package
-    printf_arg_values = zip(fmt_split_args, fmt_arg_values)
+    # truncated dump
+    if wrap_ok == False: return
 
-    # display each value
-    map(apply_lcd_printf, printf_arg_values)
-    
+    # wrap the whole thing around...
+    i = row + 1
+    j = LCD_NUM_COLS - col
+    while i <= LCD_NUM_ROWS:
+        write_string_at(i, 1, lcd_output[j:LCD_NUM_COLS + 1])
+        
+        i = i + 1
+        j = j + LCD_NUM_COLS
+
