@@ -1,34 +1,61 @@
-This project implements a simple interface to text based LCD modules
-i.e HD44780 clones. The only dependancy is on 'pyparallel' which
-provides a python-wrapper over the standard parallel-port interface.
+Short Description
+-----------------
+This project implements a simple python interface to text based LCD
+modules i.e HD44780 clones. 
 
-Important Notes
----------------
-The code is split into 2 parts (as of now), they are
-hd44780_driver.py and hd44780.py.
+The only dependancy is on 'pyparallel' which provides a python-wrapper
+over the standard parallel-port interface. 
 
-Conceptually, hd44780_driver.py exposes a low-level interface to
-underlying lcd primitives. Among other things, it provides mechanisms 
-for displaying  ascii/non-ascii[*]/custom-characters and strings
-at various user-controlled locations on the display.
+License
+-------
+GPL.
 
-As of now, hd44780.py uses the interface exported by the driver for
-defining and displaying custom characters only. This will be further
-enhanced as more interesting data is gathered.
+Code Organization
+-----------------
+The code is layered as follows:
 
-[*]: limited to what is available on the CGROM on the chip.
+    - pp_driver.py provides the parallel-port interface routines for
+      following basic operations:
+         - strobing 
+         - executing a command
+         - writing a data-byte
 
-Driver Implementation Details
------------------------------
+    - hd44780_driver.py provides an abstraction for interfacing with
+      hd44780 text based lcd displays.
+
+    - lcd_interface.py provides a 'canonical' printf like routine for
+      dumping sequences of ascii/custom-characters at various
+      user-controlled locations on the lcd-display. 
+
+    - lcd_display.py uses the printf routine for doing some
+      rudimentary write operations on the lcd.
+
+Driver (hd44780_driver.py) Implementation Details
+-------------------------------------------------
 Interacting with HD44780 module is primarily[*] done via writing
 commands/data to the module. 
 
 In this implementation, a 'LCD_INSTRUCTION_TABLE' provides a
-COMMAND-NAME to COMMAND-VALUE mapping. Each row in the table provides
-the corresponding values for different parallel-port
-pins. 'get_instruction_data' then takes an instruction-name, and
-returns the actual values that need to be sent down the
-parallel-port.
+dictionary which maps 'COMMAND-NAMES' to 'COMMAND-VALUES'.
+
+For a given command, the corresponding rows provide values for
+different parallel-port pins. For example:
+
+   - DISPLAY_CLEAR corresponds to the following
+       [  RS,  R/W,  DB7,  DB6,  DB5,  DB4,  DB3,  DB2,  DB1,  DB0]
+     - [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
+
+which is pretty self explantory, however for the sake of completeness:
+     - RS	  == 0 i.e. C2 == Low (from pp_driver.py)
+     - RW	  == 0 i.e. a 'write' operation
+     - DB0 - DB7  == 0x01
+     
+A common routine i.e. 'get_instruction_data' is the central point for
+interfacing with 'LCD_INSTRUCTION_TABLE'.
+
+Of the multitudinous hd44780 interfacing projects on the web, to the
+best of my knowledge, I have not seen this approach being used
+anywhere. 
 
 This approach has a great advantage of self documenting most of the
 lcd-interactions in the program. For example, restting the lcd is
@@ -48,8 +75,6 @@ executing the following commands in sequence:
       - DISPLAY_ON_CURSOR_ON_BLINK_ON
       - DISPLAY_PARAM_8BIT_2LINE_5x8DOTS
       - RETURN_HOME
-
-[*] See [1] in Shortcomings sections below
 
 Shortcomings
 ------------
