@@ -46,9 +46,9 @@ different parallel-port pins. For example:
      - [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
 
 which is pretty self explantory, however for the sake of completeness:
-     - RS 	 == 0 i.e. C2 == Low (from pp_driver.py)
-     - RW      	 == 0 i.e. a 'write' operation
-     - DB0 - DB7 == 0x01
+     - RS	  == 0 i.e. C2 == Low (from pp_driver.py)
+     - RW	  == 0 i.e. a 'write' operation
+     - DB0 - DB7  == 0x01
      
 A common routine i.e. 'get_instruction_data' is the central point for
 interfacing with 'LCD_INSTRUCTION_TABLE'.
