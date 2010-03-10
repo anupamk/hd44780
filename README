@@ -17,8 +17,8 @@ The code is layered as follows:
     - pp_driver.py provides the parallel-port interface routines for
       following basic operations:
          - strobing 
-	 - executing a command
-	 - writing a data-byte
+         - executing a command
+         - writing a data-byte
 
     - hd44780_driver.py provides an abstraction for interfacing with
       hd44780 text based lcd displays.
