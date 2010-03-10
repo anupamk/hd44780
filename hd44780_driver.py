@@ -83,10 +83,11 @@ def get_instruction_data(instruction_name, addr_val = 0):
     instr_val  = 0x00
 
     # lookup the instruction, and return the value
-    instr_tab  = LCD_INSTRUCTION_TABLE[instruction_name]
-    
-    if instr_tab == None:
-        return reg_select, read_write, instr_val
+    try:
+        instr_tab  = LCD_INSTRUCTION_TABLE[instruction_name]
+    except KeyError:
+        print "Error: Unknown / Un-Implemented Command : '%s'" % (instruction_name)
+        return (reg_select, read_write, instr_val)
 
     # instruction_name is ok
     reg_select = instr_tab[0]
@@ -109,7 +110,11 @@ def lcd_get_cc_cgram_start_addr(cc_loc):
 # LCD_INSTRUCTION_TABLE)
 def exec_named_cmdval(cmd_name, cmd_val):
     rs, _, cmd_value = get_instruction_data(cmd_name, cmd_val)
-    
+
+    # nothing to do
+    if cmd_value == 0: return
+
+    # the real thang
     print "[cmd-name:'%32s', cmd-value: '%3d', reg-sel: '%2d']" % (cmd_name, cmd_value, rs)
     pp_driver.exec_command(rs, cmd_value)
 
