@@ -1,6 +1,6 @@
 # lcd-wide control related imports
-from hd44780_driver import reset_lcd as reset
-from hd44780_driver import initialize_lcd as initialize
+import hd44780_driver as lcd_driver
+import hd44780_custom_chars as lcd_cc
 
 # display related imports
 from hd44780_driver import write_string_at
@@ -44,3 +44,22 @@ def printf(row, col, wrap_ok = True, fmt_args = None, *fmt_argv):
         i = i + 1
         j = j + LCD_NUM_COLS
 
+# show the shape. nothing fancy at all...
+def cc_printf(row, col, shape_name = None):
+    cc_cgram_loc = lcd_cc.get_custom_char_cgram_location(shape_name)
+
+    # can't do much
+    if cc_cgram_loc == None: return
+    
+    write_custom_character_at(row, col, cc_cgram_loc)
+
+
+# initialize the display.
+#    - load all the custom-characters
+#    - basic initialization
+def initialize():
+    lcd_cc.load_custom_chars_to_cgram()
+    lcd_driver.initialize()
+
+def reset():
+    lcd_driver.reset_lcd()

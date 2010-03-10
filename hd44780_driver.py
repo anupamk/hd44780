@@ -87,7 +87,7 @@ def get_instruction_data(instruction_name, addr_val = 0):
         instr_tab  = LCD_INSTRUCTION_TABLE[instruction_name]
     except KeyError:
         print "Error: Unknown / Un-Implemented Command : '%s'" % (instruction_name)
-        return (reg_select, read_write, instr_val)
+        return None
 
     # instruction_name is ok
     reg_select = instr_tab[0]
@@ -104,16 +104,17 @@ def lcd_get_ddram_address(row, col):
 # this function is called to get the CGRAM-START-ADDRESSS for a given
 # custom-character 
 def lcd_get_cc_cgram_start_addr(cc_loc):
-    return LCD_CUSTOMCHAR_ADDRESS_MAP[cc_loc - 1][1]
+    return LCD_CUSTOMCHAR_ADDRESS_MAP[cc_loc][1]
 
 # this function is called to execute a named-command  (from the
 # LCD_INSTRUCTION_TABLE)
 def exec_named_cmdval(cmd_name, cmd_val):
-    rs, _, cmd_value = get_instruction_data(cmd_name, cmd_val)
+    rs, rw, cmd_value = get_instruction_data(cmd_name, cmd_val)
 
     # nothing to do
-    if cmd_value == 0: return
-
+    if (rs == None or rw == None or cmd_val == None):
+        return
+    
     # the real thang
     print "[cmd-name:'%32s', cmd-value: '%3d', reg-sel: '%2d']" % (cmd_name, cmd_value, rs)
     pp_driver.exec_command(rs, cmd_value)
@@ -141,37 +142,30 @@ def write_string(msg_string):
     for ch in msg_string:
         write_char_data(ch)
 
-    # don't show the cursor anymore
-    exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
-
 # write string at a given location
 def write_string_at(row, col, msg_string):
     position_cursor(row, col)
     write_string(msg_string)
 
-    # don't show the cursor any-more
-    exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
-
 # this function is called to create a custom-character at a given
 # location in the CGRAM
-def create_custom_charset(cc_loc_value):
-    cc_start_addr = lcd_get_cc_cgram_start_addr(cc_loc_value[0])
+def create_custom_charset(cgram_addr, shape_byte_seq):
+    cc_start_addr = lcd_get_cc_cgram_start_addr(cgram_addr)
     exec_named_cmdval('WRITE_CGRAM_ADDRESS', cc_start_addr)
 
-    for i in cc_loc_value[1]:
+    for i in shape_byte_seq:
         exec_named_cmdval('WRITE_DATA_TO_RAM', i)
 
 # this function is called to display a custom-character at current
 # DDRAM location
-def display_custom_char(cc_loc):
-    pp_driver.write_data_byte(cc_loc - 1)
+def display_custom_char(cgram_addr):
+    pp_driver.write_data_byte(cgram_addr)
 
 # this function is called to display a custom-character at a specific
 # DDRAM location
-def write_custom_character_at(lcd_row, lcd_col, cc_loc_value):
-    create_custom_charset(cc_loc_value)
+def write_custom_character_at(lcd_row, lcd_col, cgram_addr):
     position_cursor(lcd_row, lcd_col)
-    display_custom_char(cc_loc_value[0])
+    display_custom_char(cgram_addr)
 
 # this function is called to write a custom byte-sequence at the
 # current location on the lcd
@@ -179,7 +173,7 @@ def write_custom_character(cc_loc_val):
     write_custom_character_at(1, 1, cc_loc_val)
 
 # reset the lcd to a sane state. everything is cleaned out
-def reset_lcd():
+def reset():
     exec_named_cmdseq(['DISPLAY_CLEAR',
                        'DISPLAY_OFF',
                        'DISPLAY_ON_CURSOR_ON_BLINK_ON',
@@ -187,7 +181,7 @@ def reset_lcd():
                        'RETURN_HOME'])
 
 # initialize the lcd to 8bit mode, with a blinking-cursor at (0, 0)
-def initialize_lcd():
+def initialize():
     exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_ON',
                        'DISPLAY_CLEAR',
                        'DISPLAY_PARAM_8BIT_2LINE_5x8DOTS',
