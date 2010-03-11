@@ -23,6 +23,9 @@ The code is layered as follows:
     - hd44780_driver.py provides an abstraction for interfacing with
       hd44780 text based lcd displays.
 
+    - hd44780_custom_chars.py provides an abstraction for creating and
+      dumping custom characters on the display.    
+
     - lcd_interface.py provides a 'canonical' printf like routine for
       dumping sequences of ascii/custom-characters at various
       user-controlled locations on the lcd-display. 
@@ -46,8 +49,8 @@ different parallel-port pins. For example:
      - [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01]
 
 which is pretty self explantory, however for the sake of completeness:
-     - RS	  == 0 i.e. C2 == Low (from pp_driver.py)
-     - RW	  == 0 i.e. a 'write' operation
+     - RS         == 0 i.e. C2 == Low (from pp_driver.py)
+     - RW         == 0 i.e. a 'write' operation
      - DB0 - DB7  == 0x01
      
 A common routine i.e. 'get_instruction_data' is the central point for
