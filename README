@@ -4,7 +4,7 @@ This project implements a simple python interface to text based LCD
 modules i.e HD44780 clones. 
 
 The only dependancy is on 'pyparallel' which provides a python-wrapper
-over the standard parallel-port interface. 
+over the standard parallel-port. 
 
 License
 -------
@@ -83,7 +83,4 @@ Shortcomings
 ------------
 1. As of now, no support for reading values at a given address is not
    provided. This is mostly intentional, as data is written more often
-   on a display, than read. 
-
-2. There is no interface to intelligently wrap large text to
-   subsequent lines. 
+   on a display, than read. At least programmatically.
