@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 
-import hd44780_driver        as lcd_driver             # low-level stuff
-import lcd_interface         as lcd_ascii              # vanilla-ascii
-import lcd_custom_characters as lcd_cc                 # custom-characters
-
-
-# a rudimentary class
-class CustomCharacter:
-    def __init__(self, **kwds):
-        self.__dict__.update(kwds)
+import hd44780_driver as lcd_driver             # low-level stuff
+import lcd_ascii_if   as lcd_ascii_if           # vanilla-ascii
+import lcd_cc_if      as lcd_cc_if              # custom-characters
 
 # lets define some custom characters
 #   - cgram_location == -1 below implies a value that will be assigned
