@@ -3,6 +3,7 @@
 import hd44780_driver as lcd_driver             # low-level stuff
 import lcd_ascii_if   as lcd_ascii_if           # vanilla-ascii
 import lcd_cc_if      as lcd_cc_if              # custom-characters
+from custom_char_def  import CustomCharacter
 
 # lets define some custom characters
 #   - cgram_location == -1 below implies a value that will be assigned
@@ -11,8 +12,3 @@ POPULAR_CUSTOM_CHARACTERS = [
     CustomCharacter(cgram_location = -1, byte_seq = [0x04, 0x0e, 0x0e, 0x0e, 0x1f, 0x00, 0x04, 0x00], name = 'BELL'),
     CustomCharacter(cgram_location = -1, byte_seq = [0x00, 0x00, 0x1f, 0x1f, 0x1f, 0x1f, 0x00, 0x00], name = 'BAR' )
 ]
-
-
-
-
-

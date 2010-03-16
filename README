@@ -23,15 +23,16 @@ The code is layered as follows:
     - hd44780_driver.py provides an abstraction for interfacing with
       hd44780 text based lcd displays.
 
-    - hd44780_custom_chars.py provides an abstraction for creating and
-      dumping custom characters on the display.    
-
-    - lcd_interface.py provides a 'canonical' printf like routine for
+    - lcd_ascii_if.py provides a 'canonical' printf like routine for
       dumping sequences of ascii/custom-characters at various
-      user-controlled locations on the lcd-display. 
+      user-controlled locations on the lcd-display.
 
-    - lcd_display.py uses the printf routine for doing some
-      rudimentary write operations on the lcd.
+    - lcd_cc_if.py provides, among other things, a trivial printf like
+      interface for dumping custom-characters at various user defined
+      locations. 
+
+    - lcd_display.py uses both custom-character as well as ascii
+      interface (as described above) for writing on the lcd.
 
 Driver (hd44780_driver.py) Implementation Details
 -------------------------------------------------

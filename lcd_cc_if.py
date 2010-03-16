@@ -1,4 +1,5 @@
 import hd44780_driver as lcd_cc_driver
+from custom_char_def import CustomCharacter
 
 # custom-character has the following items:
 #    - a name (referral purposes)
@@ -10,11 +11,8 @@ LCD_MAX_CUSTOM_SHAPES_AT_A_TIME = 8
 # custom-character-map
 loaded_custom_characters = { }
 
-# a rudimentary class
-class CustomCharacter:
-    def __init__(self, **kwds):
-        self.__dict__.update(kwds)
-
+# this function returns the location of a 'shape' in the set of
+# custom-characters that are loaded. 
 def get_custom_char_cgram_location(shape_name):
     try:
         cc = loaded_custom_characters[shape_name]

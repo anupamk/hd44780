@@ -1,6 +1,5 @@
 # lcd-wide control related imports
 import hd44780_driver as lcd_driver
-import hd44780_custom_chars as lcd_cc
 
 # lcd dimensions
 LCD_NUM_ROWS               = 4
