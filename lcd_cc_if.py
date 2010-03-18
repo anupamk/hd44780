@@ -20,51 +20,50 @@ def get_custom_char_cgram_location(shape_name):
         print "Error: Unknown Shape: '%s'" % (shape_name)
         return None
 
-    return cc.cgram_location
+    return cc.cgram_loc
         
 # this function is called to load a custom character into the
 # cgram. each character is identified by a 'name'.
 #
 # loaded_custom_characters contains all the available
 # custom-characters. 
-def load_custom_character(custom_char, force = False):
+def load_custom_character(cc, force = False):
     num_cc = len(loaded_custom_characters)
+    cc_loc = num_cc + 1
 
     # max-limit-reached do nothing    
     if ((force == False) and
         (num_cc == LCD_MAX_CUSTOM_SHAPES_AT_A_TIME)):
         return
 
+    # bad 'force' 
+    if ((force == True) and
+        ((cc.cgram_loc < 0) or (cc.cgram_loc > 8))):
+        return
+
     # does it exist ?
-    cc_location = get_custom_char_cgram_location(custom_char.name)
+    if (force == True):
+        cc_loc = cc.cgram_loc
 
-    if (cc_location == None):
-        lcd_cc_driver.exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
+    lcd_cc_driver.exec_named_cmd('DISPLAY_ON_CURSOR_OFF')
 
-        # create-it
-        custom_char.cgram_location = num_cc + 1
-        lcd_cc_driver.create_custom_charset(custom_char.cgram_location, custom_char.byte_seq)
-
-        # add it to the available list
-        loaded_custom_characters[custom_char.name] = custom_char
+    # load it at 'cc_loc'
+    cc.cgram_loc = cc_loc
+    lcd_cc_driver.create_custom_charset(cc.cgram_loc, cc.byte_seq)
+    loaded_custom_characters[cc.name] = cc
         
-        lcd_cc_driver.exec_named_cmd('DISPLAY_ON_CURSOR_ON_BLINK_ON')
+    lcd_cc_driver.exec_named_cmd('DISPLAY_ON_CURSOR_ON_BLINK_ON')
         
-    return custom_char.cgram_location
-
-# load all custom-characters into the cgram
-def load_all_custom_characters(all_custom_char):
-    for i in all_custom_char:
-        load_custom_character(i)
+    return cc.cgram_loc
 
 # show the shape. nothing fancy at all...
 def cc_printf(row, col, shape_name = None):
-    cc_cgram_loc = get_custom_char_cgram_location(shape_name)
+    cc_loc = get_custom_char_cgram_location(shape_name)
 
     # can't do much
-    if cc_cgram_loc == None:
+    if cc_loc == None:
         return
     
-    lcd_cc_driver.write_custom_character_at(row, col, cc_cgram_loc)
+    lcd_cc_driver.write_custom_character_at(row, col, cc_loc)
 
 
