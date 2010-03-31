@@ -26,42 +26,6 @@ LCD_INSTRUCTION_TABLE = {
     'WRITE_DATA_TO_RAM'                             : [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
 }
 
-# store start (row, col) ddram-address. other columns, are just a
-# linear offset away from start
-LCD_DDRAM_ADDRESS_TABLE = [
-    [1, 0x00],                  
-    [2, 0x40],
-    [3, 0x14],
-    [4, 0x54]
-]
-
-# 
-# some notes about custom-characters:
-#    1. all pre-defined characters are available in the CGROM
-#    2. a ram area, called CGRAM, of 64 bytes is available for custom
-#       characters. since each custom-character consumes 8 bytes,
-#       there are 8 such characters that can be defined at a time.
-#    3. CGRAM address starts from 0x40. Thus, we have the following
-#       custom-char-num -> cgram-start-address map:
-#           -- custom-char-0 : 0x40
-#           -- custom-char-1 : 0x48
-#           -- custom-char-2 : 0x50
-#           -- custom-char-3 : 0x58
-#       etc.
-#    4. Displaying custom characters is pretty straightforward. We
-#       just write to the DDRAM the contents of a custom-char-location
-#       as defined in (3) above.
-LCD_CUSTOMCHAR_ADDRESS_MAP = [
-    [1, 0x40],
-    [2, 0x48],
-    [3, 0x50],
-    [4, 0x58],
-    [5, 0x60],
-    [6, 0x68],
-    [7, 0x70],
-    [8, 0x78]
-]
-
 # this function is called to convert an 8bit array to an equivalen
 # char. index-0 is MSB, index-7 is LSB
 def _bits2char(bit_array):
@@ -95,16 +59,6 @@ def get_instruction_data(instruction_name, addr_val = 0):
     instr_val  = _bits2char(instr_tab[2:]) | addr_val
 
     return (reg_select, read_write, instr_val)
-
-# this function is called to get the DDRAM address for a corresponding
-# (row, col) value
-def lcd_get_ddram_address(row, col):
-    return LCD_DDRAM_ADDRESS_TABLE[row - 1][1] + (col - 1)
-
-# this function is called to get the CGRAM-START-ADDRESSS for a given
-# custom-character 
-def lcd_get_cc_cgram_start_addr(cc_loc):
-    return LCD_CUSTOMCHAR_ADDRESS_MAP[cc_loc][1]
 
 # this function is called to execute a named-command  (from the
 # LCD_INSTRUCTION_TABLE)
@@ -149,8 +103,7 @@ def write_string_at(row, col, msg_string):
 
 # this function is called to create a custom-character at a given
 # location in the CGRAM
-def create_custom_charset(cgram_addr, shape_byte_seq):
-    cc_start_addr = lcd_get_cc_cgram_start_addr(cgram_addr)
+def create_custom_charset(cc_start_addr, shape_byte_seq):
     exec_named_cmdval('WRITE_CGRAM_ADDRESS', cc_start_addr)
 
     for i in shape_byte_seq:

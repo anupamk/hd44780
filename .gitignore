@@ -1,2 +1,2 @@
-/hd44780_driver.pyc
-/pp_driver.pyc
+*.pyc
+*.html
