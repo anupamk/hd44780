@@ -12,7 +12,7 @@ def initialize_matrix(M, R, C):
 # instances can now represent 'pages' of information, which can be
 # flushed as and when required. 
 class lcd_generic(object):
-    def __init__(self, ddram_rows, ddram_cols, cgram_rows = 5, cgram_cols = 5):
+    def __init__(self, ddram_rows, ddram_cols, cgram_rows, cgram_cols):
         self.ddram_rows  = ddram_rows
         self.ddram_cols  = ddram_cols
         self.cgram_rows  = cgram_rows
@@ -69,13 +69,13 @@ class lcd_generic(object):
         return cgram_addr
                        
 
-    def str_printf(self, fmt_args, *fmt_argv, R = 0, C = 0):
+    def str_printf(self, R, C, fmt_args, *fmt_argv):
         row, col = R, C
         
         if (row == 0 and col == 0):
             row, col = self.cursor_row, self.cursor_col
 
-        return (self.__do_str_printf(row, col, fmt_args, fmt_argv))
+        return (self.__do_str_printf(row, col, fmt_args, *fmt_argv))
 
     # print the contents of the matrix to the terminal
     def print_lcd_matrix(self):
@@ -101,7 +101,7 @@ class lcd_generic(object):
     # first-row, first-col == (1, 1)
     def __do_str_printf(self, R, C, fmt_args, *fmt_argv):
         str_idx  = 0
-        
+
         # bad arguments.
         if self.__lcd_printf_bad_args(R, C, fmt_args) == True:
             return str_idx
@@ -162,7 +162,7 @@ class lcd_generic(object):
 
         # overflowing display limits ?
         blank_cols = (C-1) + (R-1) * self.ddram_cols
-        if blank_cols >= self.__get_max_display_strlen()
+        if blank_cols >= self.__get_max_display_strlen():
             return True                                         # yes
 
         # all is well...

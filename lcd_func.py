@@ -18,8 +18,8 @@ NUM_LINES_PER_COLUMN = 5
 
 # bunch of custom shapes
 CUSTOM_BAR_SHAPES = [
-    custom_character(cgram_loc = 1,
-                     number    = 1,
+    custom_character(cgram_loc =  1,
+                     number    =  1,
                      name      = '1',
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(1, 0, 0, 0, 0),
@@ -31,8 +31,8 @@ CUSTOM_BAR_SHAPES = [
                                   __5bits_to_char(1, 1, 1, 1, 1)]
                      ),
     
-    custom_character(cgram_loc = 2,
-                     number    = 2,
+    custom_character(cgram_loc =  2,
+                     number    =  2,
                      name      = '2',
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(1, 1, 0, 0, 0),
@@ -44,8 +44,8 @@ CUSTOM_BAR_SHAPES = [
                                   __5bits_to_char(1, 1, 1, 1, 1)]
                      ),
 
-    custom_character(cgram_loc = 3,
-                     number    = 3,
+    custom_character(cgram_loc =  3,
+                     number    =  3,
                      name      = '3',
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(1, 1, 1, 0, 0),
@@ -57,8 +57,8 @@ CUSTOM_BAR_SHAPES = [
                                   __5bits_to_char(1, 1, 1, 1, 1)]
                      ),
 
-    custom_character(cgram_loc = 4,
-                     number    = 4,
+    custom_character(cgram_loc =  4,
+                     number    =  4,
                      name      = '4',
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(1, 1, 1, 1, 0),
@@ -70,9 +70,9 @@ CUSTOM_BAR_SHAPES = [
                                   __5bits_to_char(1, 1, 1, 1, 1)]
                      ),
     
-    custom_character(cgram_loc = 5,
-                     number    = 5,
-                     name      = '5'
+    custom_character(cgram_loc =  5,
+                     number    =  5,
+                     name      = '5',
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(1, 1, 1, 1, 1),
@@ -83,9 +83,9 @@ CUSTOM_BAR_SHAPES = [
                                   __5bits_to_char(1, 1, 1, 1, 1)]
                      ),
 
-    custom_character(cgram_loc = 6,
-                     number    = 6,
-                     name      = 'A'
+    custom_character(cgram_loc =  6,
+                     number    =  6,
+                     name      = 'A',
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(0, 0, 0, 0, 1),
                                   __5bits_to_char(0, 0, 0, 0, 1),
@@ -96,8 +96,8 @@ CUSTOM_BAR_SHAPES = [
                                   __5bits_to_char(1, 1, 1, 1, 1)]
                      ),
 
-    custom_character(cgram_loc = 7,
-                     number    = 7,
+    custom_character(cgram_loc =  7,
+                     number    =  7,
                      name      = 'B',                           
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(1, 0, 0, 0, 1),
@@ -109,8 +109,8 @@ CUSTOM_BAR_SHAPES = [
                                   __5bits_to_char(1, 1, 1, 1, 1)]
                      ),
 
-    custom_character(cgram_loc = 8,
-                     number    = 8,
+    custom_character(cgram_loc =  8,
+                     number    =  8,
                      name      = 'C',
                      byte_seq  = [__5bits_to_char(1, 1, 1, 1, 1),
                                   __5bits_to_char(0, 0, 0, 0, 0),
@@ -124,9 +124,11 @@ CUSTOM_BAR_SHAPES = [
     ]
 
 # load all custom shapes into the display
-def load_all_custom_shapes(lcd):
+def load_custom_shapes(lcd):
+    row = 0
     for shape in CUSTOM_BAR_SHAPES:
-        lcd.write_cgram_vector(shape.cgram_loc, shape.byte_seq)
+        lcd.write_cgram_vector(row, shape.byte_seq)
+        row = row + 1
 
     # load all the shapes on the display
     lcd.load_shapes()
@@ -134,6 +136,7 @@ def load_all_custom_shapes(lcd):
 
 # return the cgram-location for the shape-name (1-to-1 mapping)
 def get_shape_cgram_loc(shape_name):
+    print "shape-name = '%s'" % (shape_name)
     return int(shape_name)
 
 # put a bar at a given location on the lcd.
@@ -144,24 +147,25 @@ def get_shape_cgram_loc(shape_name):
 #
 # no checks are made to see if the bar would actually 'fit' on the
 # display. 
-def show_usage_bar(lcd, row, col, bar_width, usage_val):
-    start_col = col
-    
+def show_usage_meter(lcd, row, col, bar_width, usage_val):
+
     # compute how many full, and partial lines are required
     max_lines  = usage_val * (bar_width * NUM_LINES_PER_COLUMN) / 100
-    part_lines = max_lines % NUM_LINES_PER_COLUMN
-    full_lines = (max_lines - part_lines)/NUM_LINES_PER_COLUMN
+    part_lines = int(max_lines % NUM_LINES_PER_COLUMN)
+    full_lines = int((max_lines - part_lines)/NUM_LINES_PER_COLUMN)
+
+    print "full-lines = '%d', part-lines = '%d'" % (full_lines, part_lines)
 
     # write the full lines
     for i in range(full_lines):
-        start_col = start_col + i
+        print "r = '%d', c = '%d'" % (row, col+i)
         lcd.write_lcd_matrix(row,
-                             start_col,
-                             get_shape_cgram_loc(str(NUM_LINES_PER_LOCATION)))
+                             col+i,
+                             5)
 
     # write partial lines
     lcd.write_lcd_matrix(row,
-                         start_col + 1,
+                         col + i,
                          get_shape_cgram_loc(str(part_lines)))
     
 

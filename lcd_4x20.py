@@ -1,5 +1,5 @@
-import hd44780     as lcd_drv
-import lcd_generic as lcd
+import hd44780_driver as lcd_drv
+import lcd_generic    as lcd
 
 # stuff specific to a 4x20 HD44780 compatible display
 
@@ -51,26 +51,33 @@ LCD_CUSTOMCHAR_ADDRESS_MAP = [
 
 class lcd_4x20(lcd.lcd_generic):
     def __init__(self):
-        super(lcd_4x20, self).__init__(LCD_NUM_ROWS, LCD_NUM_COLS)
+        super(lcd_4x20, self).__init__(LCD_NUM_ROWS, LCD_NUM_COLS, LCD_CGRAM_MAX_SHAPES, LCD_CGRAM_MAX_BYTES_PER_SHAPE)
+        self.initialize()
+        return
 
     def reset(self):
         lcd_drv.reset()
+        return
 
     def initialize(self):
         lcd_drv.initialize()
+        return
 
     # flush the contents of the matrix to the display
     def flush(self):
         for row in range(self.ddram_rows):
-            rowol_addr = LCD_DDRAM_ADDRESS_TABLE[row][1] + col
-            row_val    = self.read_lcd_row(row)
-            
-            lcd_drv.position_cursor(rowol_addr)
+            rowcol_addr = LCD_DDRAM_ADDRESS_TABLE[row][1] + 0
+            row_val     = self.read_lcd_row(row)
+
+            lcd_drv.position_cursor(rowcol_addr)
             self.__flush_lcd_row(row_val)
         return
 
     # load cgram into the display
     def load_shapes(self):
+        lcd_drv.exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_OFF',
+                                   'DISPLAY_ON_CURSOR_OFF'])
+        
         for row in range(self.cgram_rows):
             cgram_addr   = LCD_CUSTOMCHAR_ADDRESS_MAP[row][1]
             custom_shape = self.read_cgram_vector(row)
@@ -81,14 +88,18 @@ class lcd_4x20(lcd.lcd_generic):
     # private functions
     def __flush_lcd_row(self, col_val):
         for c in range(self.ddram_cols):
-            self.__flush_to_lcd_val(col_val[c])
+            val = col_val[c]
+            if (val == 0):
+                val = ' '
+                
+            self.__flush_lcd_rowcol_val(val)
 
     # write a row+col value. if the value cannot be written as
     # char-data, it is treated as a cgram address...
-    def __flush_lcd_rowcol_val(val):
+    def __flush_lcd_rowcol_val(self, val):
         try:
             lcd_drv.write_char_data(val)
-        except ValueError:
+        except TypeError:
             lcd_drv.display_custom_char(val)
 
         return
