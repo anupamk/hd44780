@@ -11,11 +11,15 @@ def initialize_matrix(M, R, C):
 # a simple class for abstracting a generic lcd display. multiple
 # instances can now represent 'pages' of information, which can be
 # flushed as and when required. 
-class lcd_generic:
+class lcd_generic(object):
     def __init__(self, ddram_rows, ddram_cols, cgram_rows = 5, cgram_cols = 5):
-        self.ddram_rows             = ddram_rows
-        self.ddram_cols             = ddram_cols
-        self.max_displayable_string = ddram_rows * ddram_cols
+        self.ddram_rows  = ddram_rows
+        self.ddram_cols  = ddram_cols
+        self.cgram_rows  = cgram_rows
+
+        # where next read/write operation would take place
+        self.cursor_row  = 0
+        self.cursor_col  = 0
 
         # initialize the ddram and cgram matrix
         self.__ddram_matrix = []
@@ -26,23 +30,76 @@ class lcd_generic:
 
         return
 
+    # write a data-byte at a given location
     def write_lcd_matrix(self, R, C, byte):
+        self.cursor_row = R
+        self.cursor_col = C
+        
         self.__ddram_matrix[R][C] = byte
 
-    def read_lcd_matrix(self, R, C):
-        return self.__ddram_matrix[R][C]
+        return
 
+    # read the contents of an entire lcd-row
+    def read_lcd_row(self, R):
+        row_val = []
+        
+        for c in range(self.ddram_cols):
+            row_val.append(self.__read_lcd_matrix(R, c))
+        
+        return row_val
+
+    # load a custom shape
     def write_cgram_vector(self, R, byte_seq):
         self.__cgram_vector[R] = byte_seq
-
+                           
     def read_cgram_vector(self, R):
         return self.__cgram_vector[R]
+
+    # dump the address of a custom character at a given location
+    def cc_printf(self, cgram_row, R = 0, C = 0):
+        row, col = R, C
+
+        if (row == 0 and col == 0):
+            row, col = self.cursor_row, self.cursor_col
+            self.cursor_row = self.cursor_row + 1
+            self.cursor_col = self.cursor_col + 1
+
+        self.__ddram_matrix[row][col] = cgram_row
+                           
+        return cgram_addr
+                       
+
+    def str_printf(self, fmt_args, *fmt_argv, R = 0, C = 0):
+        row, col = R, C
+        
+        if (row == 0 and col == 0):
+            row, col = self.cursor_row, self.cursor_col
+
+        return (self.__do_str_printf(row, col, fmt_args, fmt_argv))
+
+    # print the contents of the matrix to the terminal
+    def print_lcd_matrix(self):
+        print "[Rows: %d, Cols = %d]" % (len(self.__ddram_matrix), len(self.__ddram_matrix[0]))
+        for i in range(len(self.__ddram_matrix)):
+            print "row: %d, value: %s" % (i, self.__ddram_matrix[i])
+        return
+
+    # dump matrix contents to lcd-display
+    def flush(self):
+        return
+
+    # load custom shapes
+    def load_shapes(self):
+        return
+
+    def __read_lcd_matrix(self, R, C):
+        return self.__ddram_matrix[R][C]
     
     # a printf like interface for dumping characters on the
     # ddram-matrix. returns the number of characters actually dumped. 
     #
     # first-row, first-col == (1, 1)
-    def str_printf(self, R, C, fmt_args, *fmt_argv):
+    def __do_str_printf(self, R, C, fmt_args, *fmt_argv):
         str_idx  = 0
         
         # bad arguments.
@@ -72,23 +129,10 @@ class lcd_generic:
 
         return str_idx
 
-    # print the contents of the matrix to the terminal
-    def print_lcd_matrix(self):
-        print "[Rows: %d, Cols = %d]" % (len(self.__ddram_matrix), len(self.__ddram_matrix[0]))
-        for i in range(len(self.__ddram_matrix)):
-            print "row: %d, value: %s" % (i, self.__ddram_matrix[i])
-        return
-
-    # dump matrix contents to lcd-display
-    def flush_lcd_matrix(self):
-        return
-
-    # load custom shapes
-    def flush_cgram_vector(self):
-        print self.__cgram_vector                       # just-testing
-        return
-
-
+    # how many characters we can display
+    def __get_max_display_strlen(self):
+        return self.ddram_rows * self.ddram_cols
+    
     # display a given string, returns the number of bytes actually
     # written. just 'write' the string on the lcd-matrix. 
     def __safe_str_write(self, R, C, disp_str):
@@ -96,7 +140,7 @@ class lcd_generic:
                                 len(disp_str))
         lcd_row_str = disp_str[:num_chars_to_show]
         self.__unsafe_str_write(R - 1, C - 1, lcd_row_str)
-        
+
         return len(lcd_row_str)
     
     # write a string to the matrix. no checks are made for
@@ -118,7 +162,7 @@ class lcd_generic:
 
         # overflowing display limits ?
         blank_cols = (C-1) + (R-1) * self.ddram_cols
-        if blank_cols >= self.max_displayable_string:             
+        if blank_cols >= self.__get_max_display_strlen()
             return True                                         # yes
 
         # all is well...
@@ -132,7 +176,7 @@ class lcd_generic:
     # can dumping continue ? call epa...
     def __continue_dumping(self, idx, lcd_output):
         if ((idx >= len(lcd_output)) or
-            (idx >= self.max_displayable_string)):
+            (idx >= self.__get_max_display_strlen())):
             return False
         
         return True

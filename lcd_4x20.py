@@ -1,3 +1,6 @@
+import hd44780     as lcd_drv
+import lcd_generic as lcd
+
 # stuff specific to a 4x20 HD44780 compatible display
 
 # lcd dimensions
@@ -15,10 +18,6 @@ LCD_DDRAM_ADDRESS_TABLE = [
     [4, 0x54]
 ]
 
-# return ddram address for a given (row, col)
-def lcd_get_ddram_address(row, col):
-    return LCD_DDRAM_ADDRESS_TABLE[row - 1][1] + (col - 1)
-
 # 
 # some notes about custom-characters:
 #    1. all pre-defined characters are available in the CGROM
@@ -33,8 +32,12 @@ def lcd_get_ddram_address(row, col):
 #           -- custom-char-3 : 0x58
 #       etc.
 #    4. Displaying custom characters is pretty straightforward. We
-#       just write to the DDRAM the contents of a custom-char-location
-#       as defined in (3) above.
+#       just write to the DDRAM the ADDRESS of CGRAM location as
+#       defined in (3) above.
+#
+#       Which basically brings an un-intended consequence to the whole
+#       thing. If a CGRAM address is updated with a new shape, then
+#       the older entries referring to it are also updated...
 LCD_CUSTOMCHAR_ADDRESS_MAP = [
     [1, 0x40],
     [2, 0x48],
@@ -46,3 +49,48 @@ LCD_CUSTOMCHAR_ADDRESS_MAP = [
     [8, 0x78]
 ]
 
+class lcd_4x20(lcd.lcd_generic):
+    def __init__(self):
+        super(lcd_4x20, self).__init__(LCD_NUM_ROWS, LCD_NUM_COLS)
+
+    def reset(self):
+        lcd_drv.reset()
+
+    def initialize(self):
+        lcd_drv.initialize()
+
+    # flush the contents of the matrix to the display
+    def flush(self):
+        for row in range(self.ddram_rows):
+            rowol_addr = LCD_DDRAM_ADDRESS_TABLE[row][1] + col
+            row_val    = self.read_lcd_row(row)
+            
+            lcd_drv.position_cursor(rowol_addr)
+            self.__flush_lcd_row(row_val)
+        return
+
+    # load cgram into the display
+    def load_shapes(self):
+        for row in range(self.cgram_rows):
+            cgram_addr   = LCD_CUSTOMCHAR_ADDRESS_MAP[row][1]
+            custom_shape = self.read_cgram_vector(row)
+            lcd_drv.create_custom_charset(cgram_addr, custom_shape)
+            
+        return
+
+    # private functions
+    def __flush_lcd_row(self, col_val):
+        for c in range(self.ddram_cols):
+            self.__flush_to_lcd_val(col_val[c])
+
+    # write a row+col value. if the value cannot be written as
+    # char-data, it is treated as a cgram address...
+    def __flush_lcd_rowcol_val(val):
+        try:
+            lcd_drv.write_char_data(val)
+        except ValueError:
+            lcd_drv.display_custom_char(val)
+
+        return
+    
+    

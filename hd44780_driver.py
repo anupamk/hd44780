@@ -83,23 +83,15 @@ def exec_named_cmdseq(cmd_name_seq):
         exec_named_cmd(cmd_name)
 
 # position the cursor to a specific location on the lcd
-def position_cursor(lcd_row, lcd_col):
-    rowcol_ddram_addr = lcd_get_ddram_address(lcd_row, lcd_col)
+def position_cursor(rowcol_ddram_addr):
     exec_named_cmdval('WRITE_DDRAM_ADDRESS', rowcol_ddram_addr)
 
+def write_data_byte(data):
+    pp_driver.write_data_byte(data)
+    
 # write a ascii-character data
 def write_char_data(char):
-    pp_driver.write_data_byte(ord(char))
-
-# write a string onto the lcd
-def write_string(msg_string):
-    for ch in msg_string:
-        write_char_data(ch)
-
-# write string at a given location
-def write_string_at(row, col, msg_string):
-    position_cursor(row, col)
-    write_string(msg_string)
+    write_data_byte(ord(char))
 
 # this function is called to create a custom-character at a given
 # location in the CGRAM
@@ -112,18 +104,7 @@ def create_custom_charset(cc_start_addr, shape_byte_seq):
 # this function is called to display a custom-character at current
 # DDRAM location
 def display_custom_char(cgram_addr):
-    pp_driver.write_data_byte(cgram_addr)
-
-# this function is called to display a custom-character at a specific
-# DDRAM location
-def write_custom_character_at(lcd_row, lcd_col, cgram_addr):
-    position_cursor(lcd_row, lcd_col)
-    display_custom_char(cgram_addr)
-
-# this function is called to write a custom byte-sequence at the
-# current location on the lcd
-def write_custom_character(cc_loc_val):
-    write_custom_character_at(1, 1, cc_loc_val)
+    write_data_byte(cgram_addr)
 
 # reset the lcd to a sane state. everything is cleaned out
 def reset():
