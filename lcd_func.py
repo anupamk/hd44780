@@ -124,13 +124,12 @@ CUSTOM_BAR_SHAPES = [
     ]
 
 # load all custom shapes into the display
-def load_custom_shapes(lcd):
+def load_cust_shapes(lcd):
     row = 0
     for shape in CUSTOM_BAR_SHAPES:
-        lcd.write_cgram_vector(row, shape.byte_seq)
+        lcd.cp_shape(row, shape.byte_seq)
         row = row + 1
 
-    # load all the shapes on the display
     lcd.load_shapes()
     return
 
@@ -148,28 +147,33 @@ def get_shape_cgram_loc(shape_name):
 # no checks are made to see if the bar would actually 'fit' on the
 # display. 
 def show_usage_meter(lcd, row, col, bar_width, usage_val):
-
     # compute how many full, and partial lines are required
-    max_lines  = usage_val * (bar_width * NUM_LINES_PER_COLUMN) / 100
-    part_lines = int(max_lines % NUM_LINES_PER_COLUMN)
-    full_lines = int((max_lines - part_lines)/NUM_LINES_PER_COLUMN)
+    max_lines  = int(usage_val * (bar_width * NUM_LINES_PER_COLUMN) / 100)
+    part_lines = max_lines % NUM_LINES_PER_COLUMN
+    full_lines = (max_lines - part_lines)/NUM_LINES_PER_COLUMN
 
-    print "full-lines = '%d', part-lines = '%d'" % (full_lines, part_lines)
+    print "USAGE-METER: [usage: %.1f, max-lines: %d, full-lines: %d, partial-lines: %d]" %  (usage_val,
+                                                                                             max_lines,
+                                                                                             full_lines,
+                                                                                             part_lines)
 
+    # setup the border properly
+    for i in range(bar_width):
+        lcd.put_shape(row, col+i, 7)
+
+    
     # write the full lines
+    last_col = col
     for i in range(full_lines):
-        print "r = '%d', c = '%d'" % (row, col+i)
-        lcd.write_lcd_matrix(row,
-                             col+i,
-                             5)
+        lcd.put_shape(row, last_col, 4)
+        last_col = last_col + 1
 
     # write partial lines
-    lcd.write_lcd_matrix(row,
-                         col + i,
-                         get_shape_cgram_loc(str(part_lines)))
-    
-
-    # show it
-    lcd.flush()
+    if (part_lines > 0):
+        lcd.put_shape(row,
+                      last_col,
+                      part_lines - 1)
+        
+    return
     
 

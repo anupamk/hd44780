@@ -16,9 +16,9 @@ pp = parallel.Parallel()
 # considered valid when it is high.
 def _toggle_enable():
     pp.setDataStrobe(1)         # E == low
-    time.sleep(0.001)
+    time.sleep(0.0001)
     pp.setDataStrobe(0)         # E == high
-    time.sleep(0.001)
+    time.sleep(0.0001)
 
 # send out some control command
 def exec_command(reg_select, ctrl):

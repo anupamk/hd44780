@@ -3,8 +3,8 @@ import lcd_func
 import lcd_4x20 as display
 
 # useful constants
-NAME_DISPLAY_ROW = 1
-CPU_USGAGE_ROW   = 2
+NAME_DISPLAY_ROW = 0
+CPU_USGAGE_ROW   = 1
 
 # return the used/idle cpu-values
 def get_cpu_usage_stats():
@@ -30,18 +30,18 @@ def display_cpu_usage(lcd, old_usage, new_usage):
     (new_usage[0], new_usage[1]) = get_cpu_usage_stats()
     cpu_usage = compute_cpu_usage(old_usage, new_usage)
 
-    lcd.str_printf(CPU_USGAGE_ROW,5, "%s:%.1f", "CPU", cpu_usage)
-    lcd.flush()
+    print "CPU-USAGE: %.1f" % (cpu_usage)
+    
+    # push some values
+    lcd.init_row(CPU_USGAGE_ROW)
+    
+    lcd.put_string(CPU_USGAGE_ROW, 0, "%s:%.1f", "CPU", cpu_usage)
+    lcd_func.show_usage_meter(lcd, CPU_USGAGE_ROW, 9, 11, cpu_usage)
+    
+    lcd.flush_row(CPU_USGAGE_ROW)
 
     # update values
     (old_usage[0], old_usage[1]) = (new_usage[0], new_usage[1])
-
-    return
-
-# initialize lcd device
-def init_lcd_dev(my_lcd):
-    my_lcd.initialize()
-    lcd_func.load_custom_shapes(my_lcd)
 
     return
 
@@ -49,24 +49,19 @@ def init_lcd_dev(my_lcd):
 def run_main():
     old_cpu = [0.0, 0.0]                                # [used, idle]
     new_cpu = [0.0, 0.0]                                # [used, idle]
-    my_lcd  = display.lcd_4x20()                        # current-lcd
 
-    init_lcd_dev(my_lcd)
+    # setup the display
+    my_lcd  = display.lcd_4x20()                        # current-lcd
+    lcd_func.load_cust_shapes(my_lcd)
 
     # collect old values
     (old_cpu[0], old_cpu[1]) = get_cpu_usage_stats()
 
-    my_lcd.str_printf(NAME_DISPLAY_ROW, 1, "%s", "ANUPAM KAPOOR !")
-    my_lcd.flush()
+    my_lcd.put_string(NAME_DISPLAY_ROW, 0, "%s", "ANUPAM KAPOOR")
+    my_lcd.flush_row(NAME_DISPLAY_ROW)
     
-    # # deamonize this...
+    # deamonize this...
     while True:
-        time.sleep(2)
+        time.sleep(0.5)
         display_cpu_usage(my_lcd, old_cpu, new_cpu)
 
-        
-        
-
-        
-
-    
