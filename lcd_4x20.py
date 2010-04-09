@@ -62,6 +62,11 @@ class lcd_4x20(lcd.generic_lcd):
     def initialize(self):
         super(lcd_4x20, self).initialize()
         lcd_drv.initialize()
+
+        # extra stuff for us...
+        lcd_drv.exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_OFF',
+                                   'DISPLAY_ON_CURSOR_OFF'])
+        
         return
 
     # flush entire matrix. a matrix is a bunch of rows...
@@ -72,10 +77,6 @@ class lcd_4x20(lcd.generic_lcd):
 
     # flush a given character in the matrix
     def flush_row(self, row):
-
-        lcd_drv.exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_OFF',
-                                   'DISPLAY_ON_CURSOR_OFF'])
-        
         self.__position_cursor_at_row(row)
         row_val = self.ddram_matrix_[row]
 

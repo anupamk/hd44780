@@ -162,13 +162,13 @@ def show_usage_meter(lcd, row, col, bar_width, usage_val):
         lcd.put_shape(row, col+i, 7)
 
     
-    # write the full lines
+    # write all full lines
     last_col = col
     for i in range(full_lines):
         lcd.put_shape(row, last_col, 4)
         last_col = last_col + 1
 
-    # write partial lines
+    # write custom shape for partial lines
     if (part_lines > 0):
         lcd.put_shape(row,
                       last_col,
