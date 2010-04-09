@@ -1,4 +1,5 @@
 import pp_driver
+import utils
 
 # this module provides an interface to the functionality offered by
 # the HD44780 Text LCD Display.
@@ -38,6 +39,9 @@ def _bits2char(bit_array):
             (bit_array[6] << 1) |
             (bit_array[7] << 0))
 
+# whether to do any debug dump...
+DO_DEBUG_PRINT = 0
+
 # this function is called to return rs, r/w, db0-db7 values for a
 # given instruction. for write_XXX instructions, addr_val should be
 # appropriately populated
@@ -70,7 +74,7 @@ def exec_named_cmdval(cmd_name, cmd_val):
         return
     
     # the real thang
-    print "[cmd-name:'%32s', cmd-value: '%3d', reg-sel: '%2d']" % (cmd_name, cmd_value, rs)
+    utils.debug_print(DO_DEBUG_PRINT, "[cmd-name:'%32s', cmd-value: '%3d', reg-sel: '%2d']", cmd_name, cmd_value, rs)
     pp_driver.exec_command(rs, cmd_value)
 
 # execute a named-command

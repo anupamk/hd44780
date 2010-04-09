@@ -176,4 +176,3 @@ def show_usage_meter(lcd, row, col, bar_width, usage_val):
         
     return
     
-

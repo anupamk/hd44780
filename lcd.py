@@ -1,6 +1,10 @@
 import time
 import lcd_func
 import lcd_4x20 as display
+import utils
+
+# no debugging output
+DO_DEBUG_PRINT = False
 
 # useful constants
 NAME_DISPLAY_ROW = 0
@@ -30,7 +34,7 @@ def display_cpu_usage(lcd, old_usage, new_usage):
     (new_usage[0], new_usage[1]) = get_cpu_usage_stats()
     cpu_usage = compute_cpu_usage(old_usage, new_usage)
 
-    print "CPU-USAGE: %.1f" % (cpu_usage)
+    utils.debug_print(DO_DEBUG_PRINT, "CPU-USAGE: %.1f", cpu_usage)
     
     # push some values
     lcd.init_row(CPU_USGAGE_ROW)
