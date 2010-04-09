@@ -47,8 +47,10 @@ def display_cpu_usage(lcd, old_usage, new_usage):
 
 # run it all
 def run_main():
+    num_itr = 0
     old_cpu = [0.0, 0.0]                                # [used, idle]
     new_cpu = [0.0, 0.0]                                # [used, idle]
+    
 
     # setup the display
     my_lcd  = display.lcd_4x20()                        # current-lcd
@@ -62,6 +64,15 @@ def run_main():
     
     # deamonize this...
     while True:
+        num_itr = num_itr + 1
         time.sleep(0.5)
         display_cpu_usage(my_lcd, old_cpu, new_cpu)
+
+        if (num_itr % 100 == 0):
+            print "RESSETTING: %d" % (num_itr)
+            my_lcd.initialize()
+            lcd_func.load_cust_shapes(my_lcd)
+            my_lcd.put_string(NAME_DISPLAY_ROW, 0, "%s", "ANUPAM KAPOOR")
+            my_lcd.flush_row(NAME_DISPLAY_ROW)
+        
 

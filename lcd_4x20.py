@@ -60,8 +60,8 @@ class lcd_4x20(lcd.generic_lcd):
         return
 
     def initialize(self):
+        super(lcd_4x20, self).initialize()
         lcd_drv.initialize()
-
         return
 
     # flush entire matrix. a matrix is a bunch of rows...
