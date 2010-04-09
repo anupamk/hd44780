@@ -1,4 +1,4 @@
-import lcd_generic as lcd
+import generic_lcd as lcd
 
 # a struct defining custom-character. 
 class custom_character:

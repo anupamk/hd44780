@@ -179,15 +179,15 @@ def __get_available_space(lcd_matrix, r, c):
 #
 # if the string would overflow the display, 
 def __do_matrix_printf__(lcd_matrix, r, c, fmt_args, *fmt_argv):
-    bytes = 0
-    R, C  = r, c
+    num_bytes = 0
+    R, C      = r, c
     
     # args ok ?
     if __printf_args_bad(lcd_matrix, r, c, fmt_args):
-        return (bytes, C, R)
+        return (num_bytes, C, R)
 
     # display params
-    M, mat_rows, mat_cols = (lcd_matrix[0], lcd_matrix[1], lcd_matrix[2])
+    M, mat_cols = (lcd_matrix[0], lcd_matrix[2])
 
     # message properties
     full_msg  = str(fmt_args) % fmt_argv                 # what we have to show
