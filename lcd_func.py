@@ -1,4 +1,5 @@
 import generic_lcd as lcd
+import utils
 
 # a struct defining custom-character. 
 class custom_character:
@@ -12,6 +13,9 @@ def __5bits_to_char(b4, b3, b2, b1, b0):
             (b2 << 2) |
             (b1 << 1) |
             (b0))
+
+# dump something ?
+DO_DEBUG_PRINT = False
 
 # shape specific
 NUM_LINES_PER_COLUMN = 5
@@ -152,10 +156,9 @@ def show_usage_meter(lcd, row, col, bar_width, usage_val):
     part_lines = max_lines % NUM_LINES_PER_COLUMN
     full_lines = (max_lines - part_lines)/NUM_LINES_PER_COLUMN
 
-    print "USAGE-METER: [usage: %.1f, max-lines: %d, full-lines: %d, partial-lines: %d]" %  (usage_val,
-                                                                                             max_lines,
-                                                                                             full_lines,
-                                                                                             part_lines)
+    utils.debug_print(DO_DEBUG_PRINT,
+                      "USAGE-METER: [usage: %.1f, max-lines: %d, full-lines: %d, partial-lines: %d]",
+                      usage_val, max_lines, full_lines, part_lines)
 
     # setup the border properly
     for i in range(bar_width):

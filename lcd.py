@@ -2,13 +2,15 @@ import time
 import lcd_func
 import lcd_4x20 as display
 import utils
+import os
 
 # no debugging output
 DO_DEBUG_PRINT = False
 
 # useful constants
-NAME_DISPLAY_ROW = 0
-CPU_USGAGE_ROW   = 1
+NAME_DISPLAY_ROW   = 0
+CPU_USGAGE_ROW     = 2
+SYSTEM_UPTIME_ROW  = 3
 
 # return the used/idle cpu-values
 def get_cpu_usage_stats():
@@ -49,34 +51,80 @@ def display_cpu_usage(lcd, old_usage, new_usage):
 
     return
 
+# this function returns the system uptime in the following format
+#    Ad(ays):Bh(ours):Cm(inutes)
+def get_system_uptime():
+    minute_sec = 60
+    hour_sec   = 60 * minute_sec
+    day_sec    = 24 * hour_sec
+
+    # get current uptime seconds
+    with file("/proc/uptime", "r") as uptime_file:
+        proc_uptime = uptime_file.readline().split()[:1]
+
+    uptime_secs = float(proc_uptime[0])
+
+    # compute uptime values
+    up_days      = int(uptime_secs / day_sec)
+    up_hours     = int((uptime_secs % day_sec)  / hour_sec)
+    up_minutes   = int((uptime_secs % hour_sec) / minute_sec)
+    up_seconds   = int(uptime_secs % up_minutes)
+
+    # uptime string
+    up_str = "UP: %3dD:%2dH:%2dM:%2ds" % (up_days,
+                                          up_hours,
+                                          up_minutes,
+                                          up_seconds)
+    
+    return up_str
+
+# display the uptime
+def display_uptime(lcd):
+    uptime_str = get_system_uptime()
+
+    # dump the text string
+    lcd.init_row(SYSTEM_UPTIME_ROW)
+    lcd.put_string(SYSTEM_UPTIME_ROW, 0, "%s", uptime_str)
+    lcd.flush_row(SYSTEM_UPTIME_ROW)
+
+    return
+    
+        
+# reset the lcd display
+def reset_lcd(my_lcd):
+    my_lcd.initialize()
+    lcd_func.load_cust_shapes(my_lcd)
+    my_lcd.put_string(NAME_DISPLAY_ROW, 0, "%s", "   ANUPAM KAPOOR   ")
+    my_lcd.put_string(NAME_DISPLAY_ROW+1, 0, "%s", " STARENT NETWORKS  ")
+    my_lcd.flush_row(NAME_DISPLAY_ROW)
+    my_lcd.flush_row(NAME_DISPLAY_ROW+1)
+
+    return
+
 # run it all
 def run_main():
     num_itr = 0
     old_cpu = [0.0, 0.0]                                # [used, idle]
     new_cpu = [0.0, 0.0]                                # [used, idle]
-    
 
     # setup the display
     my_lcd  = display.lcd_4x20()                        # current-lcd
-    lcd_func.load_cust_shapes(my_lcd)
+    reset_lcd(my_lcd)
 
     # collect old values
     (old_cpu[0], old_cpu[1]) = get_cpu_usage_stats()
-
-    my_lcd.put_string(NAME_DISPLAY_ROW, 0, "%s", "ANUPAM KAPOOR")
-    my_lcd.flush_row(NAME_DISPLAY_ROW)
     
     # deamonize this...
     while True:
         num_itr = num_itr + 1
         time.sleep(0.5)
+
+        # display various stuff
         display_cpu_usage(my_lcd, old_cpu, new_cpu)
+        display_uptime(my_lcd)
 
         if (num_itr % 100 == 0):
             print "RESSETTING: %d" % (num_itr)
-            my_lcd.initialize()
-            lcd_func.load_cust_shapes(my_lcd)
-            my_lcd.put_string(NAME_DISPLAY_ROW, 0, "%s", "ANUPAM KAPOOR")
-            my_lcd.flush_row(NAME_DISPLAY_ROW)
+            reset_lcd(my_lcd)
         
 
