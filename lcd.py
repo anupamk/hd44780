@@ -54,27 +54,26 @@ def display_cpu_usage(lcd, old_usage, new_usage):
 # this function returns the system uptime in the following format
 #    Ad(ays):Bh(ours):Cm(inutes)
 def get_system_uptime():
-    minute_sec = 60
-    hour_sec   = 60 * minute_sec
-    day_sec    = 24 * hour_sec
+    SECONDS_PER_MINUTE = 60
+    SECONDS_PER_HOUR   = 60 * SECONDS_PER_MINUTE
+    SECONDS_PER_DAY    = 24 * SECONDS_PER_HOUR
 
     # get current uptime seconds
     with file("/proc/uptime", "r") as uptime_file:
         proc_uptime = uptime_file.readline().split()[:1]
-
-    uptime_secs = float(proc_uptime[0])
+    uptime_secs  = float(proc_uptime[0])
 
     # compute uptime values
-    up_days      = int(uptime_secs / day_sec)
-    up_hours     = int((uptime_secs % day_sec)  / hour_sec)
-    up_minutes   = int((uptime_secs % hour_sec) / minute_sec)
-    up_seconds   = int(uptime_secs % up_minutes)
+    up_days      = int(uptime_secs  / SECONDS_PER_DAY)
+    up_hours     = int((uptime_secs % SECONDS_PER_DAY)  / SECONDS_PER_HOUR)
+    up_minutes   = int((uptime_secs % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE)
+    up_seconds   = int(uptime_secs  % SECONDS_PER_MINUTE)
 
     # uptime string
-    up_str = "UP: %3dD:%2dH:%2dM:%2ds" % (up_days,
-                                          up_hours,
-                                          up_minutes,
-                                          up_seconds)
+    up_str = "UP %3dd %2dh %2dm %2ds" % (up_days,
+                                         up_hours,
+                                         up_minutes,
+                                         up_seconds)
     
     return up_str
 
@@ -117,14 +116,10 @@ def run_main():
     # deamonize this...
     while True:
         num_itr = num_itr + 1
-        time.sleep(0.5)
+        time.sleep(1.0)
 
         # display various stuff
         display_cpu_usage(my_lcd, old_cpu, new_cpu)
         display_uptime(my_lcd)
-
-        if (num_itr % 100 == 0):
-            print "RESSETTING: %d" % (num_itr)
-            reset_lcd(my_lcd)
         
 
