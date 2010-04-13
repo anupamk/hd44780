@@ -8,9 +8,9 @@ import os
 DO_DEBUG_PRINT = False
 
 # useful constants
-NAME_DISPLAY_ROW   = 0
-CPU_USGAGE_ROW     = 2
-SYSTEM_UPTIME_ROW  = 3
+NAME_DISPLAY_ROW  = 0
+CPU_USAGE_ROW     = 2
+SYSTEM_UPTIME_ROW = 3
 
 # percentage usage in an interval
 def percent_usage(delta_use, delta_idle):
@@ -55,10 +55,10 @@ def display_cpu_usage(lcd, cpu_gen):
     utils.debug_print(DO_DEBUG_PRINT, "CPU-USAGE: %.1f", cpu_usage)
     
     # push some values to the display
-    lcd.init_row(CPU_USGAGE_ROW)
-    lcd.put_string(CPU_USGAGE_ROW, 0, "%s:%.1f", "CPU", cpu_usage)
-    lcd_func.show_usage_meter(lcd, CPU_USGAGE_ROW, 9, 11, cpu_usage)
-    lcd.flush_row(CPU_USGAGE_ROW)
+    lcd.init_row(CPU_USAGE_ROW)
+    lcd.put_string(CPU_USAGE_ROW, 0, "%s:%.1f", "CPU", cpu_usage)
+    lcd_func.show_usage_meter(lcd, CPU_USAGE_ROW, 9, 11, cpu_usage)
+    lcd.flush_row(CPU_USAGE_ROW)
 
     return
 
@@ -98,31 +98,35 @@ def display_uptime(lcd):
     lcd.flush_row(SYSTEM_UPTIME_ROW)
 
     return
-    
-        
-# reset the lcd display
-def reset_lcd(my_lcd):
-    my_lcd.initialize()
-    lcd_func.load_cust_shapes(my_lcd)
-    my_lcd.put_string(NAME_DISPLAY_ROW, 0, "%s", "   ANUPAM KAPOOR   ")
+
+# self information
+def display_self_info(my_lcd):
+    my_lcd.put_string(NAME_DISPLAY_ROW,   0, "%s", "   ANUPAM KAPOOR   ")
     my_lcd.put_string(NAME_DISPLAY_ROW+1, 0, "%s", " STARENT NETWORKS  ")
     my_lcd.flush_row(NAME_DISPLAY_ROW)
     my_lcd.flush_row(NAME_DISPLAY_ROW+1)
 
     return
+        
+# reset the lcd display
+def initialize_lcd(my_lcd):
+    my_lcd.initialize()
+    lcd_func.load_cust_shapes(my_lcd)
+
+    return
 
 # run it all
 def run_main():
-    num_itr = 0
     cpu_gen = cpu_usage_gen()
 
     # setup the display
     my_lcd  = display.lcd_4x20()                        # current-lcd
-    reset_lcd(my_lcd)
+    initialize_lcd(my_lcd)
 
+    display_self_info(my_lcd)
+    
     # deamonize this...
     while True:
-        num_itr = num_itr + 1
         time.sleep(1.0)
 
         # display various stuff

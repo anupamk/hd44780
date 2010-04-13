@@ -101,9 +101,9 @@ Shortcomings
 ------------
 1. As of now, no support for reading values at a given address is 
    provided. This is mostly intentional, as data is written more often
-   on a display, than read. At least programmatically.
+   on a display, than read. 
 
-   Unfortunately, this essentially precludes computation of
-   delay-values programmatically.
+   This unfortunately, precludes computation of delay-values (during
+   strobing) programmatically. 
 
    
