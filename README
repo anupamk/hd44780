@@ -23,16 +23,32 @@ The code is layered as follows:
     - hd44780_driver.py provides an abstraction for interfacing with
       hd44780 text based lcd displays.
 
-    - lcd_ascii_if.py provides a 'canonical' printf like routine for
-      dumping sequences of ascii/custom-characters at various
-      user-controlled locations on the lcd-display.
+    - generic_lcd.py provides an abstraction of a lcd device. a 'NxM'
+      matrix abstracts the display, while custom shapes are abstracted
+      by a vector of 'R' rows. 
 
-    - lcd_cc_if.py provides, among other things, a trivial printf like
-      interface for dumping custom-characters at various user defined
-      locations. 
+      the act of writing on the display is split into 2 parts i.e
+      writing text/custom-characters on the matrix above, and then
+      'flushing' the contents on to the actual display.
 
-    - lcd_display.py uses both custom-character as well as ascii
-      interface (as described above) for writing on the lcd.
+      a 'put_string' function provides a printf like interface for
+      dumping contents on the display. similarly custom characters are
+      dumped using 'put_shape'.
+      
+    - lcd_4x20.py provides an interface to '4x20' lcd modules (4 rows,
+      20 columns). 
+
+    - lcd_func.py contains bunch of trivial functions for defining
+      custom shapes and loading them into the display. in the current
+      case, we end up loading a simple 'bar' like shape which is quite
+      useful for displaying 'usage-meter' values.
+
+    - lcd.py as of now collects some interesting information of the
+      running system i.e.
+         - cpu-usage displays current cpu usage as a percentage, as
+           well as a 'bar-graph'
+
+         - uptime shows the current uptime of the machine.
 
 Driver (hd44780_driver.py) Implementation Details
 -------------------------------------------------
@@ -52,7 +68,8 @@ different parallel-port pins. For example:
 which is pretty self explantory, however for the sake of completeness:
      - RS         == 0 i.e. C2 == Low (from pp_driver.py)
      - RW         == 0 i.e. a 'write' operation
-     - DB0 - DB7  == 0x01
+     - DB1 - DB7  == 0x00
+     - DB0        == 0x01
      
 A common routine i.e. 'get_instruction_data' is the central point for
 interfacing with 'LCD_INSTRUCTION_TABLE'.
@@ -82,6 +99,11 @@ executing the following commands in sequence:
 
 Shortcomings
 ------------
-1. As of now, no support for reading values at a given address is not
+1. As of now, no support for reading values at a given address is 
    provided. This is mostly intentional, as data is written more often
    on a display, than read. At least programmatically.
+
+   Unfortunately, this essentially precludes computation of
+   delay-values programmatically.
+
+   
