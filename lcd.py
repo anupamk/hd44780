@@ -12,6 +12,14 @@ NAME_DISPLAY_ROW   = 0
 CPU_USGAGE_ROW     = 2
 SYSTEM_UPTIME_ROW  = 3
 
+# percentage usage in an interval
+def percent_usage(delta_use, delta_idle):
+    delta_use   = 1.0 * abs(delta_use)
+    delta_idle  = 1.0 * abs(delta_idle)
+    percent_use = 100.00 * (delta_use)/(delta_use + delta_idle)
+
+    return percent_use
+
 # return the used/idle cpu-values
 def get_cpu_usage_stats():
     with file("/proc/stat", "r") as stat_file:
@@ -22,37 +30,40 @@ def get_cpu_usage_stats():
     # c[0] == user, c[1] == nice, c[2] == system, c[3] == idle
     return (cpu_val[0]+cpu_val[1]+cpu_val[2], cpu_val[3])
 
-# percentage usage in an interval
-def compute_cpu_usage(old_cpu_usage, new_cpu_usage):
-    delta_usage = 1.0 * abs(new_cpu_usage[0] - old_cpu_usage[0])
-    delta_idle  = 1.0 * abs(new_cpu_usage[1] - old_cpu_usage[1])
-    usage       = 100.00 * (delta_usage)/(delta_usage + delta_idle)
+# a genrator returning cpu-usage values...
+def cpu_usage_gen():
+    old_cpu_usage, old_cpu_idle = 0.0, 0.0
+    new_cpu_usage, new_cpu_idle = 0.0, 0.0
 
-    return usage
+    while True:
+        new_cpu_usage, new_cpu_idle = get_cpu_usage_stats()
+        
+        # compute usage
+        cpu_usage = percent_usage((new_cpu_usage - old_cpu_usage),
+                                  (new_cpu_idle  - old_cpu_idle))
+        yield cpu_usage
 
+        # update the values
+        old_cpu_usage = new_cpu_usage
+        old_cpu_idle  = new_cpu_idle
+
+    return                                               # not-reached
+        
 # this function is called to display cpu usage
-def display_cpu_usage(lcd, old_usage, new_usage):
-    
-    (new_usage[0], new_usage[1]) = get_cpu_usage_stats()
-    cpu_usage = compute_cpu_usage(old_usage, new_usage)
-
+def display_cpu_usage(lcd, cpu_gen):
+    cpu_usage = cpu_gen.next()
     utils.debug_print(DO_DEBUG_PRINT, "CPU-USAGE: %.1f", cpu_usage)
     
-    # push some values
+    # push some values to the display
     lcd.init_row(CPU_USGAGE_ROW)
-    
     lcd.put_string(CPU_USGAGE_ROW, 0, "%s:%.1f", "CPU", cpu_usage)
     lcd_func.show_usage_meter(lcd, CPU_USGAGE_ROW, 9, 11, cpu_usage)
-    
     lcd.flush_row(CPU_USGAGE_ROW)
-
-    # update values
-    (old_usage[0], old_usage[1]) = (new_usage[0], new_usage[1])
 
     return
 
 # this function returns the system uptime in the following format
-#    Ad(ays):Bh(ours):Cm(inutes)
+#    Ad(ays):Bh(ours):Cm(inutes):Ds(econds)
 def get_system_uptime():
     SECONDS_PER_MINUTE = 60
     SECONDS_PER_HOUR   = 60 * SECONDS_PER_MINUTE
@@ -103,23 +114,19 @@ def reset_lcd(my_lcd):
 # run it all
 def run_main():
     num_itr = 0
-    old_cpu = [0.0, 0.0]                                # [used, idle]
-    new_cpu = [0.0, 0.0]                                # [used, idle]
+    cpu_gen = cpu_usage_gen()
 
     # setup the display
     my_lcd  = display.lcd_4x20()                        # current-lcd
     reset_lcd(my_lcd)
 
-    # collect old values
-    (old_cpu[0], old_cpu[1]) = get_cpu_usage_stats()
-    
     # deamonize this...
     while True:
         num_itr = num_itr + 1
         time.sleep(1.0)
 
         # display various stuff
-        display_cpu_usage(my_lcd, old_cpu, new_cpu)
+        display_cpu_usage(my_lcd, cpu_gen)
         display_uptime(my_lcd)
         
 
