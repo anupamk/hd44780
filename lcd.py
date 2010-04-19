@@ -63,7 +63,8 @@ def display_cpu_usage(lcd, cpu_gen):
     return
 
 # this function returns the system uptime in the following format
-#    Ad(ays):Bh(ours):Cm(inutes):Ds(econds)
+#    UP:022 days 21:03:56
+# numbers are '0' padded to fit into appropriate width
 def get_system_uptime():
     SECONDS_PER_MINUTE = 60
     SECONDS_PER_HOUR   = 60 * SECONDS_PER_MINUTE
@@ -81,10 +82,10 @@ def get_system_uptime():
     up_seconds   = int(uptime_secs  % SECONDS_PER_MINUTE)
 
     # uptime string
-    up_str = "UP %3dd %2dh %2dm %2ds" % (up_days,
-                                         up_hours,
-                                         up_minutes,
-                                         up_seconds)
+    up_str = "UP:%03d days %02d:%02d:%02d" % (up_days,
+                                              up_hours,
+                                              up_minutes,
+                                              up_seconds)
     
     return up_str
 
