@@ -38,17 +38,23 @@ The code is layered as follows:
     - lcd_4x20.py provides an interface to '4x20' lcd modules (4 rows,
       20 columns). 
 
-    - lcd_func.py contains bunch of trivial functions for defining
-      custom shapes and loading them into the display. in the current
-      case, we end up loading a simple 'bar' like shape which is quite
-      useful for displaying 'usage-meter' values.
+    - lcd.py provides the entry point for displaying all the content
+      on the lcd-display.
 
-    - lcd.py as of now collects some interesting information of the
-      running system i.e.
-         - cpu-usage displays current cpu usage as a percentage, as
-           well as a 'bar-graph'
+      the code now provides a notion of 'multiple-pages' of display,
+      with each page having their own display-functions, and a bunch
+      of custom shapes.
 
-         - uptime shows the current uptime of the machine.
+    - currently there are 2 'pages' provided with followning
+      functionality:
+
+      'machine_info_page' provides machine specific information
+      e.g. hostname, textual as well as 'bar-graph' representation of
+      current cpu-usage and uptime
+
+      'personal_info_page' provides boring personal details of the
+      author. 
+
 
 Driver (hd44780_driver.py) Implementation Details
 -------------------------------------------------

@@ -50,6 +50,27 @@ class generic_lcd(object):
         
         return bytes_written
 
+    # put a string in the center of a row
+    def put_center_string(self, row, display_str):
+        center_str = display_str.center(self.ddram_cols_, " ")
+        
+        return self.put_string(row, 0, "%s", center_str)
+
+    # display a string in the center of the row
+    def display_center_string(self, row, display_str):
+        bytes_written = self.put_center_string(row, display_str)
+        self.flush_row(row)
+
+        return bytes_written
+
+    # display a string
+    def display_string(self, row, col, fmt_str, *fmt_argv):
+        bytes_written = self.put_string(row, col, fmt_str, fmt_argv)
+        self.flush_row(row)
+
+        return bytes_written
+        
+
     # puts the address of a custom shape in cgram on the
     # display. returns the number of bytes actually dumped.
     def put_shape(self, row, col, cgram_row):

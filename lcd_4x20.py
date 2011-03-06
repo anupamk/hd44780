@@ -51,7 +51,9 @@ LCD_CUSTOMCHAR_ADDRESS_MAP = [
 
 class lcd_4x20(lcd.generic_lcd):
     def __init__(self):
-        super(lcd_4x20, self).__init__(LCD_NUM_ROWS, LCD_NUM_COLS, LCD_CGRAM_MAX_SHAPES, LCD_CGRAM_MAX_BYTES_PER_SHAPE)
+        super(lcd_4x20, self).__init__(LCD_NUM_ROWS, LCD_NUM_COLS,
+                                       LCD_CGRAM_MAX_SHAPES,
+                                       LCD_CGRAM_MAX_BYTES_PER_SHAPE)
         self.initialize()
         return
 
@@ -66,7 +68,7 @@ class lcd_4x20(lcd.generic_lcd):
         # extra stuff for us...
         lcd_drv.exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_OFF',
                                    'DISPLAY_ON_CURSOR_OFF'])
-        
+
         return
 
     # flush entire matrix. a matrix is a bunch of rows...
