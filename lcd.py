@@ -8,15 +8,17 @@ def setup_lcd_pages(lcd):
     pages = []
 
     # create a bunch of pages
-    page_1 = lcd_page(machine_info.get_name(),
-                      machine_info.get_display_func(),
-                      machine_info.get_custom_shapes(),
-                      lcd)
+    page_1 = lcd_page(lcd,
+                      "Machine Info",                           # page-name
+                      30, 1.0,                                  # duration+refresh-rate (secs)
+                      machine_info.display_machine_info,        # display-function
+                      machine_info.get_custom_shapes())         # page-specific-shapes
 
-    page_2 = lcd_page(personal_info.get_name(),
-                      personal_info.get_display_func(),
-                      personal_info.get_custom_shapes(),
-                      lcd)
+    page_2 = lcd_page(lcd,
+                      "Personal Info",                          # page-name
+                      45, 1.0,                                  # duration+refresh-rate (secs)
+                      personal_info.display_personal_info,      # display-function
+                      None)                                     # page-specific-shapes
 
     # add them to the page-list to be displayed
     pages.append(page_1)

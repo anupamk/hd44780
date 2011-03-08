@@ -7,12 +7,13 @@
 #    - cursor-ypos  : row position in the ddram-matrix
 # 
 class generic_lcd(object):
-    def __init__(self, ddram_row, ddram_col, cgram_row, cgram_col):
+    def __init__(self, ddram_row, ddram_col, cgram_row, cgram_col, lines_per_col):
         # dimensions
-        self.ddram_rows_ = ddram_row
-        self.ddram_cols_ = ddram_col
-        self.cgram_rows_ = cgram_row
-        self.cgram_cols_ = cgram_col
+        self.ddram_rows_    = ddram_row
+        self.ddram_cols_    = ddram_col
+        self.cgram_rows_    = cgram_row
+        self.cgram_cols_    = cgram_col
+        self.lines_per_col_ = lines_per_col
 
         # position cursor at top-left corner of the display
         self.c_row_ = 0
@@ -50,6 +51,13 @@ class generic_lcd(object):
         
         return bytes_written
 
+    # display a string
+    def display_string(self, row, col, fmt_str, *fmt_argv):
+        bytes_written = self.put_string(row, col, fmt_str, fmt_argv)
+        self.flush_row(row)
+
+        return bytes_written
+    
     # put a string in the center of a row
     def put_center_string(self, row, display_str):
         center_str = display_str.center(self.ddram_cols_, " ")
@@ -62,14 +70,6 @@ class generic_lcd(object):
         self.flush_row(row)
 
         return bytes_written
-
-    # display a string
-    def display_string(self, row, col, fmt_str, *fmt_argv):
-        bytes_written = self.put_string(row, col, fmt_str, fmt_argv)
-        self.flush_row(row)
-
-        return bytes_written
-        
 
     # puts the address of a custom shape in cgram on the
     # display. returns the number of bytes actually dumped.

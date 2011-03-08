@@ -27,21 +27,6 @@ LCD_INSTRUCTION_TABLE = {
     'WRITE_DATA_TO_RAM'                             : [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
 }
 
-# this function is called to convert an 8bit array to an equivalen
-# char. index-0 is MSB, index-7 is LSB
-def _bits2char(bit_array):
-    return ((bit_array[0] << 7) |
-            (bit_array[1] << 6) |
-            (bit_array[2] << 5) |
-            (bit_array[3] << 4) |
-            (bit_array[4] << 3) |
-            (bit_array[5] << 2) |
-            (bit_array[6] << 1) |
-            (bit_array[7] << 0))
-
-# whether to do any debug dump...
-DO_DEBUG_PRINT = 0
-
 # this function is called to return rs, r/w, db0-db7 values for a
 # given instruction. for write_XXX instructions, addr_val should be
 # appropriately populated
@@ -60,7 +45,7 @@ def get_instruction_data(instruction_name, addr_val = 0):
     # instruction_name is ok
     reg_select = instr_tab[0]
     read_write = instr_tab[1]
-    instr_val  = _bits2char(instr_tab[2:]) | addr_val
+    instr_val  = utils.eight_bits_to_char(instr_tab[2:]) | addr_val
 
     return (reg_select, read_write, instr_val)
 
@@ -74,7 +59,6 @@ def exec_named_cmdval(cmd_name, cmd_val):
         return
     
     # the real thang
-    utils.debug_print(DO_DEBUG_PRINT, "[cmd-name:'%32s', cmd-value: '%3d', reg-sel: '%2d']", cmd_name, cmd_value, rs)
     pp_driver.exec_command(rs, cmd_value)
 
 # execute a named-command

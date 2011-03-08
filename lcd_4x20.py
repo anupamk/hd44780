@@ -8,6 +8,7 @@ LCD_NUM_ROWS                   = 4
 LCD_NUM_COLS                   = 20
 LCD_CGRAM_MAX_SHAPES           = 8
 LCD_CGRAM_MAX_BYTES_PER_SHAPE  = 5        # max-bytes-per-custom-shape
+LCD_NUM_LINES_PER_COLUMN       = 5
 
 # store start (row, col) ddram-address. other columns, are just a
 # linear offset away from start
@@ -53,7 +54,8 @@ class lcd_4x20(lcd.generic_lcd):
     def __init__(self):
         super(lcd_4x20, self).__init__(LCD_NUM_ROWS, LCD_NUM_COLS,
                                        LCD_CGRAM_MAX_SHAPES,
-                                       LCD_CGRAM_MAX_BYTES_PER_SHAPE)
+                                       LCD_CGRAM_MAX_BYTES_PER_SHAPE,
+                                       LCD_NUM_LINES_PER_COLUMN)
         self.initialize()
         return
 
