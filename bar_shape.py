@@ -109,14 +109,13 @@ def show_usage_meter(lcd, row, col, bar_width, usage_val):
     
     # compute how many full, and partial lines are required
     max_lines  = int(usage_val * (bar_width * lines_per_col) / 100)
-    part_lines = max_lines % lines_per_col + 1
+    part_lines = max_lines % lines_per_col
     full_lines = (max_lines - part_lines)/lines_per_col
 
     # setup the border properly
     for i in range(bar_width):
         lcd.put_shape(row, col+i, 7)
 
-    
     # write all full lines
     last_col = col
     for i in range(full_lines):
@@ -125,8 +124,7 @@ def show_usage_meter(lcd, row, col, bar_width, usage_val):
 
     # write custom shape for partial lines
     if (part_lines > 0):
-        lcd.put_shape(row,
-                      last_col,
-                      part_lines - 1)
-        
+        lcd.put_shape(row, last_col, part_lines-1)
+
+    lcd.flush_row(row)
     return

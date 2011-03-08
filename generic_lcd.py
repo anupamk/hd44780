@@ -79,7 +79,7 @@ class generic_lcd(object):
         if (r < 0 or c < 0):
             r = self.c_row_
             c = self.c_col_
-        
+
         self.ddram_matrix_[r][c] = cgram_row
         self.__update_xycursor(c+1, r)
         return 1
