@@ -40,6 +40,7 @@ LCD_DDRAM_ADDRESS_TABLE = [
 #       thing. If a CGRAM address is updated with a new shape, then
 #       the older entries referring to it are also updated...
 LCD_CUSTOMCHAR_ADDRESS_MAP = [
+    [0, 0xFF],                                               # invalid
     [1, 0x40],
     [2, 0x48],
     [3, 0x50],
@@ -73,12 +74,6 @@ class lcd_4x20(lcd.generic_lcd):
 
         return
 
-    # flush entire matrix. a matrix is a bunch of rows...
-    def flush(self):
-        for row in range(self.ddram_rows_):
-            self.flush_row(row)
-        return
-
     # flush a given character in the matrix
     def flush_row(self, row):
         self.__position_cursor_at_row(row)
@@ -94,15 +89,23 @@ class lcd_4x20(lcd.generic_lcd):
         
         return
 
-    # load cgram into the display
-    def load_shapes(self):
-        for row in range(self.cgram_rows_):
-            cgram_addr   = LCD_CUSTOMCHAR_ADDRESS_MAP[row][1]
-            custom_shape = self.cgram_vector_[row]
-            lcd_drv.create_custom_charset(cgram_addr, custom_shape)
-            
+    # this function is called to load one shape at a specific location
+    # in the cgram
+    def load_a_shape(self, cgram_row, shape):
+        cgram_addr = LCD_CUSTOMCHAR_ADDRESS_MAP[cgram_row][1]
+        lcd_drv.create_custom_charset(cgram_addr, shape)
+
         return
 
+    # this function is called to load a bunch of shapes into the
+    # cgram. only first 'LCD_CGRAM_MAX_SHAPES' are loaded
+    def load_custom_shapes(self, shape_list):
+        for i in range(LCD_CGRAM_MAX_SHAPES):
+            shape = shape_list[i]
+            self.load_a_shape(shape.cgram_loc, shape.byte_seq)
+
+        return
+    
     # private functions
     def __position_cursor_at_row(self, row):
         row_addr = LCD_DDRAM_ADDRESS_TABLE[row][1]
