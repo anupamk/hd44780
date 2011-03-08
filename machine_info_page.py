@@ -11,8 +11,11 @@ def get_custom_shapes():
 # this displays static machine specific information on the lcd
 def display_static_machine_info(lcd):
     ROW_0 = 0
-    hostname = string.upper(os.uname()[1])
-    lcd.display_center_string(ROW_0, hostname)
+    hostname         = string.upper(os.uname()[1])
+    base_linux_osver = os.uname()[2].split('-')[0]
+
+    static_info = "%s (%s)" % (hostname, base_linux_osver)
+    lcd.display_center_string(ROW_0, static_info)
     
     return
 
@@ -36,19 +39,23 @@ def get_system_uptime():
     up_seconds   = int(uptime_secs  % SECONDS_PER_MINUTE)
 
     # uptime string
-    up_str = "Uptime %03d %02d:%02d:%02d" % (up_days,
-                                             up_hours,
-                                             up_minutes,
-                                             up_seconds)
+    up_str = "Up %03d-%02d:%02d" % (up_days,
+                                    up_hours,
+                                    up_minutes)
     
     return up_str
 
 # display the uptime
-def display_uptime(lcd):
-    ROW_3 = 3
+def display_uptime_cpu(lcd, cpu_gen):
+    ROW_1, ROW_3      = 1, 3
+    cpu_usage         = cpu_gen.next()
+    cpu_str           = " CPU %-3d" % (cpu_usage)
+    uptime_str        = get_system_uptime()
+    USAGE_METER_WIDTH = 20
     
-    uptime_str = get_system_uptime()
-    lcd.display_center_string(ROW_3, uptime_str)
+    lcd.display_center_string(ROW_1, uptime_str+cpu_str)
+    show_usage_meter(lcd, 2, 0, USAGE_METER_WIDTH, cpu_usage)
+    show_usage_meter(lcd, ROW_3, 0, USAGE_METER_WIDTH, cpu_usage)
 
     return
 
@@ -94,17 +101,8 @@ def cpu_usage_gen():
 
 # this function is called to display cpu usage
 def display_cpu_usage(lcd, cpu_gen):
-    ROW_2, COL_0, COL_9  = 2, 0, 9
-    USAGE_METER_WIDTH    = 11
-
-    cpu_usage = cpu_gen.next()
+    ROW_3, COL_0, COL_4  = 2, 0, 0
     
-    # push some values to the display
-    lcd.init_row(ROW_2)
-    lcd.put_string(ROW_2, COL_0, "%s:%.1f", "CPU", cpu_usage)
-    show_usage_meter(lcd, ROW_2, COL_9, USAGE_METER_WIDTH, cpu_usage)
-    lcd.flush_row(ROW_2)
-
     return
 
 
@@ -121,8 +119,7 @@ def display_machine_info(lcd_page):
 
     # dynamic content as well
     while (cur_disp_count < max_disp_count):
-        display_cpu_usage(lcd_display, cpu_generator)
-        display_uptime(lcd_display)
+        display_uptime_cpu(lcd_display, cpu_generator)
         
         cur_disp_count = cur_disp_count + 1
         time.sleep(lcd_page.refresh_rate)
