@@ -9,9 +9,13 @@ class lcd_page(object):
         self.lcd_obj       = disp_lcd
         self.name          = name
         self.pg_disp_time  = total_duration
-        self.refresh_rate  = refresh_rate
         self.display_func  = display_func
         self.custom_shapes = custom_shapes
+
+        # can't refresh faster than once per second
+        if refresh_rate < 1.0:
+            refresh_rate = 1.0
+        self.refresh_rate  = refresh_rate
 
         return
 
@@ -19,25 +23,11 @@ class lcd_page(object):
         self.display_func(self)
         return
 
-    def load_custom_shapes(self):
-        row = 0
-        if (self.custom_shapes == None):
-            return
-        
-        # load custom shapes
-        for shape in self.custom_shapes:
-            self.lcd_obj.cp_shape(row, shape.byte_seq)
-            row = row + 1
-            
-        self.lcd_obj.load_shapes()
-
-        return
-
     def initialize(self):
         self.lcd_obj.initialize()
-        self.load_custom_shapes()
+
+        if self.custom_shapes != None:
+            self.lcd_obj.load_custom_shapes(self.custom_shapes)
         
         return
         
-        
-
