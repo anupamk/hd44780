@@ -54,7 +54,6 @@ def display_uptime_cpu(lcd, cpu_gen):
     USAGE_METER_WIDTH = 20
     
     lcd.display_center_string(ROW_1, uptime_str+cpu_str)
-    show_usage_meter(lcd, 2, 0, USAGE_METER_WIDTH, cpu_usage)
     show_usage_meter(lcd, ROW_3, 0, USAGE_METER_WIDTH, cpu_usage)
 
     return
@@ -97,14 +96,6 @@ def cpu_usage_gen():
         old_cpu_idle  = new_cpu_idle
 
     return                                               # not-reached
-
-
-# this function is called to display cpu usage
-def display_cpu_usage(lcd, cpu_gen):
-    ROW_3, COL_0, COL_4  = 2, 0, 0
-    
-    return
-
 
 # this function is called to display machine specific information on
 # the lcd display. 
