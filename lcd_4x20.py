@@ -56,7 +56,7 @@ class lcd_4x20(lcd.generic_lcd):
         self.lines_per_col = LCD_NUM_LINES_PER_COLUMN
         
         super(lcd_4x20, self).do_init((LCD_NUM_ROWS, LCD_NUM_COLS))
-        self.init_hw()
+        self.do_init()
         
         return
 
@@ -66,7 +66,7 @@ class lcd_4x20(lcd.generic_lcd):
 
     # initialize the hw. basically put the display in 8-bit mode, and cursor
     # positioned at (0,0). the cursor doesn't blink...
-    def init_hw(self):
+    def do_init(self):
         lcd_drv.initialize()
         lcd_drv.exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_OFF',
                                    'DISPLAY_ON_CURSOR_OFF'])

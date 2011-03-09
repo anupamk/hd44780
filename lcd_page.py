@@ -19,12 +19,12 @@ class lcd_page(object):
 
         return
 
-    def display(self):
+    def show(self):
         self.display_func(self)
         return
 
-    def initialize(self):
-        self.lcd_obj.initialize()
+    def load(self):
+        self.lcd_obj.do_init()
 
         if self.custom_shapes != None:
             self.lcd_obj.load_custom_shapes(self.custom_shapes)

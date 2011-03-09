@@ -12,6 +12,7 @@ class generic_lcd(object):
         self.do_init((ddram_row, ddram_col))
         return
 
+    # initialize the lcd
     def do_init(self, lcd_dim):
         self.ddram_matrix_  = []
         self.c_row_         = 0         # cursor-positioned at the top-left
@@ -76,53 +77,12 @@ class generic_lcd(object):
         self.update_xycursor(c+1, r)
         return 1
 
-    # initialize the lcd, just the cursor position, and the actual
-    # stuff that was displayed. 
-    def initialize(self):
-        self.c_row_ = 0
-        self.c_col_ = 0
-
-        
-        return
-
     # initialize a row
     def init_row(self, row):
         for i in range(self.ddram_cols_):
             self.ddram_matrix_[row][i] = ' '
         return
 
-    # dump the contents of the matrix on the display
-    def flush(self):
-        self.debug_dump_ddram()
-        return
-
-    # dump the contents of a given row
-    def flush_row(self, row):
-        print "row: %d, value: %s" % (row, self.ddram_matrix_[row])
-        return
-
-    # debugging routines
-
-    # dump the contents of the ddram on the console
-    def debug_dump_ddram(self):
-        print "---DDRAM---"
-        for i in range(self.ddram_rows_):
-            print "row: %d, value: %s" % (i, self.ddram_matrix_[i])
-        return
-
-    # dump everythang
-    def debug_dump_all(self):
-        print "---MATRIX-STATE---"
-        
-        # basic stuff
-        print "DDRAM      [rows: %d, cols: %d]" % (self.ddram_rows_, self.ddram_cols_)
-        print "CURSOR-POS [ row: %d,  col: %d]" % (self.c_col_, self.c_row_)
-
-        # matrix contents
-        self.debug_dump_ddram()
-
-        return
-    
     # private stuff
     def update_xycursor(self, newx, newy):
         self.c_row_ = newx

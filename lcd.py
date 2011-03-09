@@ -33,7 +33,7 @@ def run_main():
 
     while True:
         for pg in lcd_pages:
-            pg.initialize()
-            pg.display()
+            pg.load()
+            pg.show()
 
     return
