@@ -77,12 +77,6 @@ class generic_lcd(object):
         self.update_xycursor(c+1, r)
         return 1
 
-    # initialize a row
-    def init_row(self, row):
-        for i in range(self.ddram_cols_):
-            self.ddram_matrix_[row][i] = ' '
-        return
-
     # private stuff
     def update_xycursor(self, newx, newy):
         self.c_row_ = newx
