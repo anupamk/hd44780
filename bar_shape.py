@@ -105,7 +105,7 @@ bar_shape_list = [
 # no checks are made to see if the bar would actually 'fit' on the
 # display. 
 def show_usage_meter(lcd, row, col, bar_width, usage_val):
-    lines_per_col = lcd.lines_per_col_
+    lines_per_col = lcd.lines_per_col
     
     # compute how many full, and partial lines are required
     max_lines  = int(usage_val * (bar_width * lines_per_col) / 100)

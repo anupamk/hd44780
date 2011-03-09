@@ -53,35 +53,33 @@ LCD_CUSTOMCHAR_ADDRESS_MAP = [
 
 class lcd_4x20(lcd.generic_lcd):
     def __init__(self):
-        super(lcd_4x20, self).__init__(LCD_NUM_ROWS, LCD_NUM_COLS,
-                                       LCD_CGRAM_MAX_SHAPES,
-                                       LCD_CGRAM_MAX_BYTES_PER_SHAPE,
-                                       LCD_NUM_LINES_PER_COLUMN)
-        self.initialize()
+        self.lines_per_col = LCD_NUM_LINES_PER_COLUMN
+        
+        super(lcd_4x20, self).do_init((LCD_NUM_ROWS, LCD_NUM_COLS))
+        self.init_hw()
+        
         return
 
     def reset(self):
         lcd_drv.reset()
         return
 
-    def initialize(self):
-        super(lcd_4x20, self).initialize()
+    # initialize the hw. basically put the display in 8-bit mode, and cursor
+    # positioned at (0,0). the cursor doesn't blink...
+    def init_hw(self):
         lcd_drv.initialize()
-
-        # extra stuff for us...
         lcd_drv.exec_named_cmdseq(['DISPLAY_ON_CURSOR_ON_BLINK_OFF',
                                    'DISPLAY_ON_CURSOR_OFF'])
-
         return
 
     # flush a given character in the matrix
     def flush_row(self, row):
-        self.__position_cursor_at_row(row)
+        self.position_cursor_at_row(row)
         row_val = self.ddram_matrix_[row]
 
         # dump all the values in current row
         for ch in row_val:
-            if ((ch >= 0) and (ch < self.cgram_rows_)):
+            if ((ch >= 0) and (ch < LCD_CGRAM_MAX_SHAPES)):
                 # dump a custom character
                 lcd_drv.display_custom_char(ch)
             else:
@@ -98,19 +96,17 @@ class lcd_4x20(lcd.generic_lcd):
         return
 
     # this function is called to load a bunch of shapes into the
-    # cgram. only first 'LCD_CGRAM_MAX_SHAPES' are loaded
+    # device's cgram. only first 'LCD_CGRAM_MAX_SHAPES' are loaded.
     def load_custom_shapes(self, shape_list):
         for i in range(LCD_CGRAM_MAX_SHAPES):
             shape = shape_list[i]
             self.load_a_shape(shape.cgram_loc, shape.byte_seq)
 
         return
-    
-    # private functions
-    def __position_cursor_at_row(self, row):
+
+    # position the cursor on a particular row
+    def position_cursor_at_row(self, row):
         row_addr = LCD_DDRAM_ADDRESS_TABLE[row][1]
         lcd_drv.position_cursor(row_addr)
         return
-    
-    
     

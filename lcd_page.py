@@ -12,7 +12,7 @@ class lcd_page(object):
         self.display_func  = display_func
         self.custom_shapes = custom_shapes
 
-        # can't refresh faster than once per second
+        # can't refresh faster than 1/sec
         if refresh_rate < 1.0:
             refresh_rate = 1.0
         self.refresh_rate  = refresh_rate
