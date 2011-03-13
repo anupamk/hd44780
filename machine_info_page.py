@@ -2,7 +2,6 @@ import os
 import time
 import string
 
-from utils import *
 from bar_shape import *
 
 def get_custom_shapes():

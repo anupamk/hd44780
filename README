@@ -10,6 +10,10 @@ License
 -------
 GPL.
 
+Author
+------
+Anupam Kapoor (anupam.kapoor@gmail.com)
+
 Code Organization
 -----------------
 The code is layered as follows:
@@ -23,9 +27,20 @@ The code is layered as follows:
     - hd44780_driver.py provides an abstraction for interfacing with
       hd44780 text based lcd displays.
 
-    - generic_lcd.py provides an abstraction of a lcd device. a 'NxM'
-      matrix abstracts the display, while custom shapes are abstracted
-      by a vector of 'R' rows. 
+    - lcd_interface provides an abstraction for the set of
+      functionality that are to be supported by a 'real' lcd device.
+
+      actual implementation of this interface is provided in two
+      places:
+         - lcd_dummy provides a dummy implementation, and is ofcourse
+           not very interesting.
+           
+         - lcd_4x20 provides an interface to the 4x20 (row, col) lcd
+           displays. 
+
+    - lcd_4x20 is the real deal and supports the interface exported by
+      'lcd_interface'. a 'matrix-display' provides a convenient
+      interface into an abstract display.
 
       the act of writing on the display is split into 2 parts i.e
       writing text/custom-characters on the matrix above, and then
@@ -34,32 +49,29 @@ The code is layered as follows:
       a 'put_string' function provides a printf like interface for
       dumping contents on the display. similarly custom characters are
       dumped using 'put_shape'.
+
+    - a page-like wrapper is also provided over the display via
+      lcd_page. it provides to the users a notion of 'multiple-pages'
+      of display.
+
+      each page has it's own display function as well as custom
+      shapes. custom shapes are loaded just before displaying the
+      contents of a page.
       
-    - lcd_4x20.py provides an interface to '4x20' lcd modules (4 rows,
-      20 columns). 
-
-    - lcd.py provides the entry point for displaying all the content
-      on the lcd-display.
-
-      the code now provides a notion of 'multiple-pages' of display,
-      with each page having their own display-functions, and a bunch
-      of custom shapes.
-
     - currently there are 2 'pages' provided with followning
       functionality:
 
-      'machine_info_page' provides machine specific information
-      e.g. hostname, textual as well as 'bar-graph' representation of
-      current cpu-usage and uptime
+          - machine_info_page: provides machine specific information
+            e.g. hostname, textual as well as 'bar-graph'
+            representation of current cpu-usage and uptime.
 
-      'personal_info_page' provides boring personal details of the
-      author. 
-
+          - personal_info_page: provides boring personal details of
+            about the author.
 
 Driver (hd44780_driver.py) Implementation Details
 -------------------------------------------------
-Interacting with HD44780 module is primarily[*] done via writing
-commands/data to the module. 
+Interacting with HD44780 module is primarily done via writing
+commands/data to the display module. 
 
 In this implementation, a 'LCD_INSTRUCTION_TABLE' provides a
 dictionary which maps 'COMMAND-NAMES' to 'COMMAND-VALUES'.
@@ -85,7 +97,7 @@ best of my knowledge, I have not seen this approach being used
 anywhere. 
 
 This approach has a great advantage of self documenting most of the
-lcd-interactions in the program. For example, restting the lcd is
+lcd-interactions in the program. For example, resetting the lcd is
 written as :
         ,----
         | def reset_lcd():
@@ -112,4 +124,3 @@ Shortcomings
    This unfortunately, precludes computation of delay-values (during
    strobing) programmatically. 
 
-   
