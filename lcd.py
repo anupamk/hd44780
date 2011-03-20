@@ -10,15 +10,11 @@ def setup_lcd_pages(lcd):
     # create a bunch of pages
     page_1 = lcd_page(lcd,
                       "Machine Info",                           # page-name
-                      30, 1.0,                                  # duration+refresh-rate (secs)
-                      machine_info.display_machine_info,        # display-function
-                      machine_info.get_custom_shapes())         # page-specific-shapes
+                      machine_info.display_machine_info)        # display-function
 
     page_2 = lcd_page(lcd,
                       "Personal Info",                          # page-name
-                      45, 1.0,                                  # duration+refresh-rate (secs)
-                      personal_info.display_personal_info,      # display-function
-                      None)                                     # page-specific-shapes
+                      personal_info.display_personal_info)      # display-function
 
     # add them to the page-list to be displayed
     pages.append(page_1)
@@ -33,7 +29,6 @@ def run_main():
 
     while True:
         for pg in lcd_pages:
-            pg.load()
             pg.show()
 
     return

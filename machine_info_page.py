@@ -103,6 +103,9 @@ def display_machine_info(lcd_page):
     cur_disp_count    = 0
     lcd_display       = lcd_page.lcd_obj
 
+    # load the custom shapes required for this page
+    lcd_display.load_custom_shapes(get_custom_shapes())
+    
     # display static content and ...
     cpu_generator = cpu_usage_gen()
     display_static_machine_info(lcd_display)
