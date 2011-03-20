@@ -1,5 +1,3 @@
-import generic_lcd as lcd
-
 # lcd_page provides a means of displaying different 'pages' of information one
 # at a time. a 'page' contains it's own display function, and an associated set
 # of custom shapes which can provide non-ascii display e.g. a cpu-usage meter
