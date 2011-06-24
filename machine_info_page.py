@@ -2,19 +2,20 @@ import os
 import time
 import string
 
-from bar_shape import *
+import slim_bar_shape as slim_bar
 
 def get_custom_shapes():
-    return bar_shape_list
+    return slim_bar.shape_list
 
 # this displays static machine specific information on the lcd
 def display_static_machine_info(lcd):
-    ROW_0 = 0
-    hostname         = string.upper(os.uname()[1])
-    base_linux_osver = os.uname()[2].split('-')[0]
+    os_info = os.uname()
+    
+    osname  = os_info[0]
+    osver   = os_info[2].split('-')[0]
 
-    static_info = "%s (%s)" % (hostname, base_linux_osver)
-    lcd.display_center_string(ROW_0, static_info)
+    static_info = "%s (%s)" % (osname, osver)
+    lcd.display_center_string(row = 0, display_str = static_info)
     
     return
 
@@ -38,63 +39,54 @@ def get_system_uptime():
     up_seconds   = int(uptime_secs  % SECONDS_PER_MINUTE)
 
     # uptime string
-    up_str = "Up %03d-%02d:%02d" % (up_days,
-                                    up_hours,
-                                    up_minutes)
+    up_str = "Uptime %03d:%02d:%02d:%02d" % (up_days,
+                                             up_hours,
+                                             up_minutes,
+                                             up_seconds)
     
     return up_str
 
-# display the uptime
-def display_uptime_cpu(lcd, cpu_gen):
-    ROW_1, ROW_3      = 1, 3
-    cpu_usage         = cpu_gen.next()
-    cpu_str           = " CPU %-3d" % (cpu_usage)
-    uptime_str        = get_system_uptime()
-    USAGE_METER_WIDTH = 20
+# this function returns the current system load
+def get_percent_cpu_load():
+    cpu_current_load = os.getloadavg()[0]
+
+    # cap it at a maximum
+    if cpu_current_load >= 1.0:
+        cpu_current_load = 1.0
     
-    lcd.display_center_string(ROW_1, uptime_str+cpu_str)
-    show_usage_meter(lcd, ROW_3, 0, USAGE_METER_WIDTH, cpu_usage)
+    return 100.00 * cpu_current_load
+
+def get_current_procs():
+    all_pids = [int(x) for x in os.listdir('/proc') if x.isdigit()]
+
+    # kernel process
+    all_pids.insert(0, 0)
+    
+    return len(all_pids)
+
+# display the uptime
+def display_uptime_cpu(lcd):
+    cpu_usage           = get_percent_cpu_load()
+    cpu_str             = "CPU %4.2f" % (cpu_usage)
+    uptime_str          = get_system_uptime()
+    lcd_rows, lcd_cols  = lcd.dimensions()
+    num_processes       = get_current_procs()
+    num_processes_str   = " Proc:%3d" % (num_processes)
+
+    if cpu_usage >= 100.0:
+        cpu_str = " CPU %4.0f" % (cpu_usage)
+    if cpu_usage >= 10.0:
+        cpu_str = " CPU %4.1f" % (cpu_usage)
+
+    # cpu-usage + processes
+    cpu_str = cpu_str + num_processes_str
+
+    # display the lot
+    lcd.display_center_string(row = 1, display_str = uptime_str)
+    lcd.display_center_string(row = 2, display_str = cpu_str)
+    slim_bar.show_usage_meter(lcd, row = 3, col = 0, bar_width = lcd_cols, usage_val = cpu_usage)
 
     return
-
-# percentage usage in an interval
-def percent_usage(delta_use, delta_idle):
-    delta_use   = 1.0 * abs(delta_use)
-    delta_idle  = 1.0 * abs(delta_idle)
-    percent_use = 100.00 * (delta_use)/(delta_use + delta_idle)
-
-    return percent_use
-
-
-# return the used/idle cpu-values
-def get_cpu_usage_stats():
-    with file("/proc/stat", "r") as stat_file:
-        cpu_val = stat_file.readline().split()[1:5]
-        for i in range(len(cpu_val)):
-            cpu_val[i] = int(cpu_val[i])
-    
-    # c[0] == user, c[1] == nice, c[2] == system, c[3] == idle
-    return (cpu_val[0]+cpu_val[1]+cpu_val[2], cpu_val[3])
-
-
-# a genrator returning cpu-usage values...
-def cpu_usage_gen():
-    old_cpu_usage, old_cpu_idle = 0.0, 0.0
-    new_cpu_usage, new_cpu_idle = 0.0, 0.0
-
-    while True:
-        new_cpu_usage, new_cpu_idle = get_cpu_usage_stats()
-        
-        # compute usage
-        cpu_usage = percent_usage((new_cpu_usage - old_cpu_usage),
-                                  (new_cpu_idle  - old_cpu_idle))
-        yield cpu_usage
-
-        # update the values
-        old_cpu_usage = new_cpu_usage
-        old_cpu_idle  = new_cpu_idle
-
-    return                                               # not-reached
 
 # this function is called to display machine specific information on
 # the lcd display. 
@@ -107,12 +99,11 @@ def display_machine_info(lcd_page):
     lcd_display.load_custom_shapes(get_custom_shapes())
     
     # display static content and ...
-    cpu_generator = cpu_usage_gen()
     display_static_machine_info(lcd_display)
 
     # dynamic content as well
     while (cur_disp_count < max_disp_count):
-        display_uptime_cpu(lcd_display, cpu_generator)
+        display_uptime_cpu(lcd_display)
         
         cur_disp_count = cur_disp_count + 1
         time.sleep(lcd_page.refresh_rate)

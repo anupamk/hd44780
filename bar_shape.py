@@ -6,7 +6,7 @@ class custom_character:
         self.__dict__.update(kwds)
 
 # bunch of custom shapes
-bar_shape_list = [
+shape_list = [
     custom_character(cgram_loc =  1,
                      byte_seq  = [five_bits_to_char(1, 1, 1, 1, 1),
                                   five_bits_to_char(1, 0, 0, 0, 0),

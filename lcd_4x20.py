@@ -54,6 +54,9 @@ LCD_4x20_CUSTOMCHAR_ADDRESS_MAP = [
 ]
 
 class lcd_4x20(lcd_interface):
+    def dimensions(self):
+        return (4, 20);
+    
     def __init__(self):
         self.mat_display = mat.matrix_display((LCD_4x20_NUM_ROWS,
                                                LCD_4x20_NUM_COLS))

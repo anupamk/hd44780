@@ -1,6 +1,13 @@
 # an abstract class describing the interface that is exported by
 # different implementations of lcd.
 class lcd_interface(object):
+    def dimensions(self):
+        """
+        called to return the dimensions of the lcd (row, col)
+        """
+        abstract()
+        return
+        
     def flush_row(self, row):
         """
         called to flush the contents of a given row onto the lcd
