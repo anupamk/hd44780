@@ -1,8 +1,5 @@
 import time
 
-from utils import *
-from bar_shape import *
-
 # this displays static machine specific information on the lcd
 def show_personal_info(lcd):
     lcd.display_center_string(0, "Anupam Kapoor")
