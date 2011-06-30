@@ -51,10 +51,19 @@ def get_query_string_from_info_list(info_list):
 # stock-symbol.
 def request_quote(stock_sym, info_list):
     query_str = get_query_string_from_info_list(info_list)
-    
-    url = YAHOO_STOCK_QUERY_URL_STRING % (stock_sym, query_str)
-    val = urllib.urlopen(url).read().strip().strip('"').split(',')
 
+    url = YAHOO_STOCK_QUERY_URL_STRING % (stock_sym, query_str)
+
+    # if urllib fails for whatever reason, we just return "ERROR" for various
+    # requested options
+    try:
+        val = urllib.urlopen(url).read().strip().strip('"').split(',')
+    except IOError:
+        val = ["IO-ERROR"] * len(info_list)
+    except:
+        val = ["UNKNOWN-ERROR"] * len(info_list)
+
+    # pair requested-information with corresponding responses
     stock_info = zip(info_list, val)
     
     return stock_info
