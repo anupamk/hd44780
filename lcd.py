@@ -17,12 +17,14 @@ def setup_lcd_pages(lcd):
 
     page_2 = lcd_page(lcd,
                       "Personal Info",                          # page-name
-                      personal_info.display_personal_info)      # display-function
+                      personal_info.display_personal_info,      # display-function
+                      total_duration = 15.0)
 
     page_3 = lcd_page(lcd,
                       "Stock Info",                             # page-name
                       stock_info.display_stock_info,            # display-function
-                      refresh_rate = 15.0)                      # update every 15 seconds
+                      total_duration = 15.0,                    # show for 15 seconds total
+                      refresh_rate   = 3.0)                     # and update every 3 seconds
 
 
     # add them to the page-list to be displayed
