@@ -1,4 +1,4 @@
-import parallel
+import parallelppdev as parallel
 import time
 
 # global-definitions
