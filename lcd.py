@@ -45,3 +45,6 @@ def run_main():
             pg.show()
 
     return
+
+if __name__ == '__main__':
+    run_main()
