@@ -14,6 +14,37 @@ Author
 ------
 Anupam Kapoor (anupam.kapoor@gmail.com)
 
+Installation
+------------
+Following needs to be done to get all working (on linux)
+
+    STEP-1 : Install pyparallel
+    ===========================
+            - download from :
+              http://sourceforge.net/projects/pyserial/files/pyparallel/0.2/pyparallel-0.2.zip/download
+            - setup.py from the above package is br0ken. comment out
+              the 'package_data' section from 'setup(...)' call and you should
+              be fine. 
+                   
+    STEP-2 : Load appropriate kernel modules
+    ========================================
+            - 'ppdev' is what is required to make it all work. if 'lp'
+              is already loaded, then that needs to be unloaded (it
+              takes over the parallel port)
+                 # rmmod lp
+              and then load ppdev
+                 # modprobe ppdev
+              just make sure that your user-id has write access to the
+              device file i.e. '/dev/parpor0' that got created you
+              modprobed 'ppdev' above.
+              
+    STEP-3 : Run it !
+    =================
+            - in the top-level directory just run 
+                 $ python2.7 lcd.py
+              to see something useful 
+            
+
 Code Organization
 -----------------
 The code is layered as follows:
